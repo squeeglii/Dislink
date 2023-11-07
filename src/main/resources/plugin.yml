@@ -1,0 +1,8 @@
+name: Dislink
+main: me.squeeglii.plugin.dislink.Dislink
+
+version: '${plugin_version}'
+api-version: '${minecraft_version}'
+
+authors: [ 'Squeeglii' ]
+description: Adds linking between Discord & Minecraft Java
