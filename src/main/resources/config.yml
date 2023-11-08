@@ -2,3 +2,65 @@
 # How many minecraft accounts can be paired to 1 discord account
 # Set to two by default with the intention to allow one bedrock + one java
 paired-account-limit: 2
+
+
+
+### -- Pairing Codes
+### How should pairing codes be generated? This section pretty much determines that.
+### Example:  goose-like-gold
+
+# How many words should a pairing code have. Lower is better for memorising but higher
+# reduces collisions. Balance this with the amount of available words for the best result.
+pairing-code-blocks: 3
+
+# Pairing Code Word List
+# Change this if anything offensive comes up.
+pairing-word-list:
+  - goose
+  - zombie
+  - pig
+  - allay
+  - fox
+  - wolf
+  - villager
+  - dragon
+  - enderman
+  - creeper
+  - craft
+  - like
+  - very
+  - mine
+  - coal
+  - iron
+  - gold
+  - copper
+  - redstone
+  - lapis
+  - emerald
+  - ruby
+  - diamond
+  - smash
+  - minecraft
+  - terraria
+  - rain
+  - risk
+  - shiny
+  - dull
+  - rusty
+  - rainbow
+  - poggers
+  - purple
+  - solar
+  - lunar
+  - star
+  - bedrock
+  - java
+  - portal
+  - nether
+  - end
+  - water
+  - lava
+  - hint
+  - sea
+  - air
+  - land

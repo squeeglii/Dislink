@@ -1,4 +1,4 @@
-package me.squeeglii.plugin.dislink;
+package me.squeeglii.plugin.dislink.util;
 
 import me.squeeglii.plugin.dislink.exception.MissingPropertyException;
 

@@ -1,11 +1,12 @@
 package me.squeeglii.plugin.dislink;
 
-import org.bukkit.configuration.file.FileConfiguration;
+import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.util.Generate;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class Dislink extends JavaPlugin {
 
-    private static Dislink instance;
+    private static Dislink instance = null;
 
     @Override
     public void onEnable() {
@@ -18,7 +19,9 @@ public final class Dislink extends JavaPlugin {
 
         int maxAccounts = Cfg.MAX_ACCOUNT_LIMIT.dislink().orElseThrow();
 
-        this.getLogger().info("%s".formatted(maxAccounts));
+        for(int i = 0; i < 10; i++) {
+            this.getLogger().info(Generate.newLinkCode());
+        }
     }
 
     @Override

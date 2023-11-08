@@ -1,7 +1,7 @@
 package me.squeeglii.plugin.dislink.data;
 
 
-import me.squeeglii.plugin.dislink.Check;
+import me.squeeglii.plugin.dislink.util.Check;
 
 import java.util.Objects;
 
