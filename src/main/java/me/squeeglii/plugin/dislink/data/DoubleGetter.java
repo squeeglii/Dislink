@@ -12,7 +12,7 @@ public class DoubleGetter extends ConfigGetter<Double> {
 
     @Override
     public Optional<Double> from(FileConfiguration config) {
-        if(config.contains(this.get()))
+        if(!config.contains(this.get()))
             return Optional.empty();
 
         double val = config.getDouble(this.get());

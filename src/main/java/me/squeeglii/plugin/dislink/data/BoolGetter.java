@@ -12,7 +12,7 @@ public class BoolGetter extends ConfigGetter<Boolean> {
 
     @Override
     public Optional<Boolean> from(FileConfiguration config) {
-        if(config.contains(this.get()))
+        if(!config.contains(this.get()))
             return Optional.empty();
 
         boolean val = config.getBoolean(this.get());

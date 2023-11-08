@@ -12,7 +12,7 @@ public class IntGetter extends ConfigGetter<Integer> {
 
     @Override
     public Optional<Integer> from(FileConfiguration config) {
-        if(config.contains(this.get()))
+        if(!config.contains(this.get()))
             return Optional.empty();
 
         int val = config.getInt(this.get());
