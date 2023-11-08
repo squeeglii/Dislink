@@ -1,0 +1,4 @@
+
+# How many minecraft accounts can be paired to 1 discord account
+# Set to two by default with the intention to allow one bedrock + one java
+paired-account-limit: 2
