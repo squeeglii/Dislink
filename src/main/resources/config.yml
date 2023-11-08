@@ -1,7 +1,21 @@
 
+### -- Database Configuration
+### A must-fill-in ! - What are the details for the database.
+
+database-address:
+database-schema:
+database-username:
+database-password:
+
+
+### -- General Pairing Configuration
+### Configures the more general parts of account linking.
+
 # How many minecraft accounts can be paired to 1 discord account
 # Set to two by default with the intention to allow one bedrock + one java
 paired-account-limit: 2
+
+prune-pending-links-on-restart: true,
 
 
 
