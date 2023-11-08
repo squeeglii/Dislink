@@ -12,6 +12,10 @@ public final class Dislink extends JavaPlugin {
         instance = this;
         this.saveDefaultConfig();
 
+
+        this.getServer().getPluginManager()
+                .registerEvents(new PlayerLifecycleListener(), this);
+
         int maxAccounts = Cfg.MAX_ACCOUNT_LIMIT.dislink().orElseThrow();
 
         this.getLogger().info("%s".formatted(maxAccounts));
