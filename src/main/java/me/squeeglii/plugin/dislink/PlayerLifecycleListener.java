@@ -128,21 +128,23 @@ public class PlayerLifecycleListener implements Listener {
     }
 
     private static String codeMessage(String code) {
-        String server = Cfg.LINK_SERVER.dislink().orElse("discord");
+        Optional<String> optServer = Cfg.LINK_SERVER.dislink();
+        String server = optServer.isPresent()
+                ? "the %s%s%s%s%s discord server".formatted(ChatColor.AQUA, ChatColor.UNDERLINE, optServer.get(), ChatColor.RESET, ChatColor.DARK_AQUA)
+                : "the discord server";
 
         return """
                %s%s%sWhere are you from?
                
                %sThis server requires you to link your Minecraft account with Discord!
-               %sPlease go to the %s%s%s%s%s server and run %s%s/link%s%s with the code:
+               %sPlease go to %s and run %s%s/link%s%s with the code:
 
                %s%s%s
                """
         .formatted(
                 ChatColor.AQUA, ChatColor.UNDERLINE, ChatColor.ITALIC,
                 ChatColor.DARK_AQUA,
-                ChatColor.DARK_AQUA, ChatColor.AQUA, ChatColor.UNDERLINE, server, ChatColor.RESET, ChatColor.DARK_AQUA,
-                                     ChatColor.AQUA, ChatColor.UNDERLINE, ChatColor.RESET, ChatColor.DARK_AQUA,
+                ChatColor.DARK_AQUA, server, ChatColor.AQUA, ChatColor.UNDERLINE, ChatColor.RESET, ChatColor.DARK_AQUA,
                 ChatColor.LIGHT_PURPLE, ChatColor.UNDERLINE, code
         );
     }
