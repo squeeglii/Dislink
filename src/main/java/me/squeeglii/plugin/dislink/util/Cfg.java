@@ -20,10 +20,11 @@ public class Cfg {
     // General Pairing
     public static final IntGetter MAX_ACCOUNT_LIMIT = new IntGetter("paired-account-limit");
     public static final BoolGetter PRUNE_PENDING_LINKS_ON_START = new BoolGetter("prune-pending-links-on-restart");
-
+    public static final StringGetter LINK_SERVER = new StringGetter("link-server");
 
     // Pairing Code Generation
     public static final IntGetter PAIRING_BLOCKS = new IntGetter("pairing-code-blocks");
+    public static final IntGetter PAIRING_GENERATION_ATTEMPTS = new IntGetter("paring-code-generation-attempts");
     public static final StringListGetter PAIRING_WORDS = new StringListGetter("pairing-word-list");
 
 

@@ -16,7 +16,11 @@ public class LinkedAccountCache implements Listener {
         this.accountCache = new HashMap<>();
     }
 
-    private Optional<LinkedAccount> getAccount(UUID playerId) {
+    public void offerAccount(LinkedAccount account) {
+        this.accountCache.put(account.minecraftId(), account);
+    }
+
+    public Optional<LinkedAccount> getAccount(UUID playerId) {
         LinkedAccount account = this.accountCache.get(playerId);
 
         if(account == null)

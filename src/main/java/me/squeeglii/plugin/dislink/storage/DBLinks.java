@@ -4,10 +4,12 @@ import me.squeeglii.plugin.dislink.Dislink;
 import me.squeeglii.plugin.dislink.exception.MissedFetchException;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
+import me.squeeglii.plugin.dislink.util.OptionalFuture;
 import me.squeeglii.plugin.dislink.util.Run;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,8 +65,10 @@ public class DBLinks {
      * @param platformId the minecraft account id
      * @return completable future returned once complete - optional is filled if the link existed.
      */
-    public static CompletableFuture<Boolean> getLinkFor(UUID platformId) {
-        return null;
+    public static OptionalFuture<LinkedAccount> getLinkFor(UUID platformId) {
+        OptionalFuture<LinkedAccount> optionalCompletableFuture = new OptionalFuture<>();
+
+        return optionalCompletableFuture;
     }
 
     /**

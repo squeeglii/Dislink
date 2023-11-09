@@ -15,7 +15,11 @@ database-password:
 # Set to two by default with the intention to allow one bedrock + one java
 paired-account-limit: 2
 
+# Should all pending links be cleared when the server starts?
 prune-pending-links-on-restart: true
+
+# Used in link message - helps signpost people to the right place to /link.
+link-server: Cardiff Gaming Society
 
 
 
@@ -26,6 +30,10 @@ prune-pending-links-on-restart: true
 # How many words should a pairing code have. Lower is better for memorising but higher
 # reduces collisions. Balance this with the amount of available words for the best result.
 pairing-code-blocks: 3
+
+# How many times should the server try to generate a code, in the case that there are
+# conflicts, before giving up.
+paring-code-generation-attempts: 3
 
 # Pairing Code Word List
 # Change this if anything offensive comes up.

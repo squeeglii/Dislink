@@ -1,11 +1,19 @@
 package me.squeeglii.plugin.dislink.storage;
 
 import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
+import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.util.Generate;
 import me.squeeglii.plugin.dislink.util.Run;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,6 +24,9 @@ public class DBPendingLinks {
 
     public static final String SQL_CLEAR_ALL = "TRUNCATE TABLE PendingLinks;";
 
+    public static final String SQL_CREATE_PENDING_LINK = "INSERT INTO PendingLinks (platform_id, link_code) VALUES (?, ?);";
+
+    public static final String SQL_CHECK_NO_DUPES = "SELECT COUNT(*) from PendingLinks WHERE link_code=?;";
 
     /**
      * Asynchronously begins the linking process for a given Minecraft account.
@@ -25,7 +36,50 @@ public class DBPendingLinks {
     public static CompletableFuture<String> startLinkingFor(UUID platformId) {
         CompletableFuture<String> output = new CompletableFuture<>();
 
+        int maxGenerationAttempts = Cfg.PAIRING_GENERATION_ATTEMPTS.dislink().orElse(3);
 
+        Run.async(() -> {
+            ConnectionWrapper conn = null;
+            List<PreparedStatement> statements = new LinkedList<>();
+
+            try {
+                conn = Dislink.get().getDbConnection();
+                conn.batch(connection -> {
+                    int attempts = 0;
+                    Optional<String> codeGenerated = Optional.empty();
+
+                    while (codeGenerated.isEmpty() && attempts < maxGenerationAttempts) {
+                        attempts++;
+                        codeGenerated = attemptAndCheckCodeGeneration(connection, statements);
+                    }
+
+                    if(codeGenerated.isEmpty()) {
+                        output.completeExceptionally(new ExhaustedOptionsException());
+                        return;
+                    }
+
+                    String id = platformId.toString();
+                    String code = codeGenerated.get();
+                    PreparedStatement submitStatement = connection.prepareStatement(SQL_CREATE_PENDING_LINK, id, code);
+                    statements.add(submitStatement);
+                    submitStatement.execute();
+
+                    output.complete(code);
+                });
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+                return;
+
+            } finally {
+                for(PreparedStatement statement: statements)
+                    DatabaseHelper.closeQuietly(statement);
+
+                DatabaseHelper.closeQuietly(conn);
+            }
+
+            output.complete(null);
+        });
 
         return output;
     }
@@ -75,6 +129,27 @@ public class DBPendingLinks {
         });
 
         return output;
+    }
+
+
+    private static Optional<String> attemptAndCheckCodeGeneration(ConnectionWrapper conn, List<PreparedStatement> statementPool) throws SQLException {
+        String newCode = Generate.newLinkCode();
+
+        PreparedStatement statement = conn.prepareStatement(SQL_CHECK_NO_DUPES, newCode);
+        statementPool.add(statement);
+
+        ResultSet results = statement.executeQuery();
+
+        if(!results.next()) {
+            Dislink.get().getLogger().warning("Failed to count link code dupes. This could mean the Database is broken!");
+            return Optional.empty();
+        }
+
+        int dupeCount = results.getInt(1);
+
+        return dupeCount == 0
+                ? Optional.of(newCode)
+                : Optional.empty();
     }
 
 }

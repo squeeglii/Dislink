@@ -8,6 +8,6 @@ import java.sql.SQLException;
 @FunctionalInterface
 public interface BatchOperation {
 
-    void run() throws SQLException;
+    void run(ConnectionWrapper connThru) throws SQLException;
 
 }

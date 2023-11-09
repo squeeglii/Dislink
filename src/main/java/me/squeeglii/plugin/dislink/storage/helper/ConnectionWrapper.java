@@ -56,7 +56,7 @@ public class ConnectionWrapper {
 
         // All exceptions are passed to the caller from this for
         // convenience and to stop: try -> batch -> try
-        runnable.run();
+        runnable.run(this);
 
         connection.commit();
         connection.setAutoCommit(isAutoCommitting);
