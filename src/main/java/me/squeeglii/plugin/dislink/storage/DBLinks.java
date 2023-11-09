@@ -42,6 +42,7 @@ public class DBLinks {
                     throw new MissedFetchException("Failed to get amount of paired accounts.");
 
                 int count = result.getInt(1);
+                result.close();
 
                 output.complete(count);
 
@@ -67,7 +68,7 @@ public class DBLinks {
      */
     public static OptionalFuture<LinkedAccount> getLinkFor(UUID platformId) {
         OptionalFuture<LinkedAccount> optionalCompletableFuture = new OptionalFuture<>();
-
+        optionalCompletableFuture.complete(Optional.empty());
         return optionalCompletableFuture;
     }
 

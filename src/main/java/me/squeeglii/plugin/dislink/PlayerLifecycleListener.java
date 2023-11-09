@@ -39,21 +39,22 @@ public class PlayerLifecycleListener implements Listener {
 
     @EventHandler
     public void handleCustomWhitelist(AsyncPlayerPreLoginEvent event) {
-
-
         UUID accountId = event.getUniqueId();
+        Dislink.get().getLogger().info("Checking if %s has a linked account.".formatted(accountId));
 
         // If players is on the whitelist (even if it's turned off),
         // skip all verification on account linking.
         if(this.hasWhitelistBypass(accountId)) {
+            Dislink.get().getLogger().info("%s bypassed link check (Whitelisted)".formatted(accountId));
             LinkedAccount guestAcc = new LinkedAccount(null, accountId, "whitelist", true);
+            Dislink.get().getLinkedAccountCache().offerAccount(guestAcc);
             return;
         }
 
         Optional<LinkedAccount> optLinkAccount;
 
         try {
-            optLinkAccount = DBLinks.getLinkFor(accountId).join();
+            optLinkAccount = DBLinks.getLinkFor(accountId).get();
 
         } catch (Exception err) {
             Dislink.get().getLogger()
@@ -65,6 +66,7 @@ public class PlayerLifecycleListener implements Listener {
         // Successfully logged in - just let 'em through and cache it.
         if(optLinkAccount.isPresent()) {
             LinkedAccount existingLink = optLinkAccount.get();
+            Dislink.get().getLogger().info("%s is linked to <@%s>!".formatted(accountId, existingLink.discordId()));
             Dislink.get().getLinkedAccountCache().offerAccount(existingLink);
             return;
         }
@@ -72,10 +74,11 @@ public class PlayerLifecycleListener implements Listener {
 
 
         // Failed to log in (not linked) - create new link.
+        Dislink.get().getLogger().info("%s is attempting to generate a pairing code...".formatted(accountId));
         String pairCode;
 
         try {
-            pairCode = DBPendingLinks.startLinkingFor(accountId).join();
+            pairCode = DBPendingLinks.startLinkingFor(accountId).get();
 
         } catch (CompletionException err) {
             Dislink.get()
@@ -113,10 +116,12 @@ public class PlayerLifecycleListener implements Listener {
 
 
     private static String error(String code) {
-        return  (
-                "%s%s%s/!\\Internal Server Error/!\\\n" +
-                "%sSomething unexpected went wrong. %sContact an admin please (E#%s)"
-        ).formatted(
+        return """
+               %s%s%s/!\\Internal Server Error/!\\
+               
+               %sSomething unexpected went wrong. %sContact an admin please (E#%s)
+               """
+        .formatted(
                 ChatColor.DARK_RED, ChatColor.UNDERLINE, ChatColor.ITALIC,
                 ChatColor.RED, ChatColor.UNDERLINE, code
         );
@@ -127,6 +132,7 @@ public class PlayerLifecycleListener implements Listener {
 
         return """
                %s%s%sWhere are you from?
+               
                %sThis server requires you to link your Minecraft account with Discord!
                %sPlease go to the %s%s%s%s%s server and run %s%s/link%s%s with the code:
 

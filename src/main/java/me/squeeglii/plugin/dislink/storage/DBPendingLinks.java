@@ -26,7 +26,10 @@ public class DBPendingLinks {
 
     public static final String SQL_CREATE_PENDING_LINK = "INSERT INTO PendingLinks (platform_id, link_code) VALUES (?, ?);";
 
-    public static final String SQL_CHECK_NO_DUPES = "SELECT COUNT(*) from PendingLinks WHERE link_code=?;";
+    public static final String SQL_CHECK_NO_DUPES = "SELECT COUNT(*) FROM PendingLinks WHERE link_code=?;";
+
+    public static final String SQL_GET_EXISTING_LINKS = "SELECT link_code FROM PendingLinks WHERE platform_id=?;";
+
 
     /**
      * Asynchronously begins the linking process for a given Minecraft account.
@@ -45,6 +48,14 @@ public class DBPendingLinks {
             try {
                 conn = Dislink.get().getDbConnection();
                 conn.batch(connection -> {
+                    Optional<String> existingLinkCode = getExistingLink(connection, statements, platformId);
+
+                    // User has already tried to link - give them the same code.
+                    if(existingLinkCode.isPresent()) {
+                        output.complete(existingLinkCode.get());
+                        return;
+                    }
+
                     int attempts = 0;
                     Optional<String> codeGenerated = Optional.empty();
 
@@ -132,6 +143,22 @@ public class DBPendingLinks {
     }
 
 
+    private static Optional<String> getExistingLink(ConnectionWrapper conn, List<PreparedStatement> statementPool, UUID accountId) throws SQLException {
+        String accountIdStr = accountId.toString();
+
+        PreparedStatement statement = conn.prepareStatement(SQL_GET_EXISTING_LINKS, accountIdStr);
+        statementPool.add(statement);
+
+        ResultSet results = statement.executeQuery();
+
+        if(!results.next())
+            return Optional.empty();
+
+
+        String linkCode = results.getString(1);
+        return Optional.of(linkCode);
+    }
+
     private static Optional<String> attemptAndCheckCodeGeneration(ConnectionWrapper conn, List<PreparedStatement> statementPool) throws SQLException {
         String newCode = Generate.newLinkCode();
 
@@ -146,6 +173,7 @@ public class DBPendingLinks {
         }
 
         int dupeCount = results.getInt(1);
+        results.close();
 
         return dupeCount == 0
                 ? Optional.of(newCode)
