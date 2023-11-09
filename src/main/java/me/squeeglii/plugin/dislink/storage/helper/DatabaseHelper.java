@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseHelper {
+
     /**
      * Close a statement without throwing any errors.
      * @param stmt The {@link Statement} being closed.

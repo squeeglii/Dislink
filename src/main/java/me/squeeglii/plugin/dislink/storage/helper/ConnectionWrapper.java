@@ -45,6 +45,11 @@ public class ConnectionWrapper {
         return statement;
     }
 
+    /**
+     * Runs a set of SQL statements in one transaction, as long as they're executed within the provided runnable.
+     * @param runnable the sql runnable to execute
+     * @throws SQLException did an error occur when committing to the DB? This is passed on.
+     */
     public void batch(BatchOperation runnable) throws SQLException {
         boolean isAutoCommitting = connection.getAutoCommit();
         connection.setAutoCommit(false);
@@ -58,6 +63,12 @@ public class ConnectionWrapper {
     }
 
 
+    /**
+     * Creates a wrapped mysql connection using the provided database credentials.
+     * @param access the credentials record
+     * @return the wrapped mysql connection
+     * @throws SQLException passed on if an error occurs creating a connection.
+     */
     public static ConnectionWrapper fromAccess(DatabaseAccess access) throws SQLException {
         String username = access.username();
         String password = access.password();

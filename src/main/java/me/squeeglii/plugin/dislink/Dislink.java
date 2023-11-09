@@ -38,7 +38,7 @@ public final class Dislink extends JavaPlugin {
                 if(err != null)
                     this.getLogger().throwing("Dislink", "clearPendingLinks", err);
 
-                this.getLogger().info("Cleared existing pending account links . Codes must be regenerated.");
+                this.getLogger().info("Cleared existing pending account links. Codes must be regenerated.");
             });
         }
 
