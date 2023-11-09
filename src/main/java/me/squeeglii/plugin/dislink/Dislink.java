@@ -1,5 +1,6 @@
 package me.squeeglii.plugin.dislink;
 
+import me.squeeglii.plugin.dislink.discord.DiscordManager;
 import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
@@ -11,10 +12,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
 public final class Dislink extends JavaPlugin {
 
     private static Dislink instance = null;
+    private static DiscordManager discordInstance = null;
 
     private Run threadWatcher;
     private LinkedAccountCache linkedAccountCache;
@@ -37,6 +40,38 @@ public final class Dislink extends JavaPlugin {
         this.event(new PlayerLifecycleListener())
             .event(this.linkedAccountCache);
 
+
+        try {
+            this.initDiscord();
+            this.postInitTasks();
+
+        } catch (Exception err) {
+            this.getLogger().throwing("Dislink", "init", err);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        if(instance == this)
+            instance = null;
+    }
+
+
+    public void initDiscord() {
+        discordInstance = new DiscordManager();
+
+        Optional<String> optToken = Cfg.DISCORD_TOKEN.dislink();
+
+        if(optToken.isEmpty()) {
+            discordInstance = null;
+            this.getLogger().warning("Missing bot token! Discord bot is disabled !");
+            return;
+        }
+
+        Dislink.discord().start(optToken.get());
+    }
+
+    private void postInitTasks() {
         DBLinks.getExistingAccountQuantityFor("test_user_not_real").whenComplete((ret, err) -> {
             if(err != null) {
                 this.getLogger().info("Error trying to fetch paired account count for 'test_user_not_real' account");
@@ -55,12 +90,6 @@ public final class Dislink extends JavaPlugin {
                 this.getLogger().info("Cleared existing pending account links. Codes must be regenerated.");
             });
         }
-    }
-
-    @Override
-    public void onDisable() {
-        if(instance == this)
-            instance = null;
     }
 
 
@@ -86,7 +115,12 @@ public final class Dislink extends JavaPlugin {
         return ConnectionWrapper.fromAccess(this.databaseCredentials);
     }
 
-    public static Dislink get() {
+
+    public static Dislink plugin() {
         return instance;
+    }
+
+    public static DiscordManager discord() {
+        return discordInstance;
     }
 }

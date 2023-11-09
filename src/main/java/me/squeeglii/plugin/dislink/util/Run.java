@@ -26,7 +26,7 @@ public class Run {
     }
 
     public static void async(Runnable runnable) {
-        Dislink.get().getThreadWatcher().runAsync(runnable);
+        Dislink.plugin().getThreadWatcher().runAsync(runnable);
     }
 
 }

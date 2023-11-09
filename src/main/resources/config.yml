@@ -8,6 +8,23 @@ database-username:
 database-password:
 
 
+### -- Discord Bot Configuration
+### Another must-fill-in! The bot is the second half of this project that allows
+### you to actually link your account.
+
+# Make your own app here: https://discord.com/developers/applications
+bot-token:
+
+# How should the bot behave on each of these servers.
+server-configs:
+  id-here:  # This bot can handle different discord servers differently.
+    short-name: a-server
+    member-role-id:  # Leave empty to allow everyone to join
+    admin-role-id:   # Leaving this empty
+    missing-member-role-message: # Allows you to do a cheeky ad for memberships.
+
+
+
 ### -- General Pairing Configuration
 ### Configures the more general parts of account linking.
 

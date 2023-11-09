@@ -2,25 +2,22 @@ package me.squeeglii.plugin.dislink.data;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.List;
 import java.util.Optional;
 
-public class StringListGetter extends ConfigGetter<List<String>> {
+public class LongGetter extends ConfigGetter<Long> {
 
-    public StringListGetter(String key) {
+    public LongGetter(String key) {
         super(key);
     }
 
     @Override
-    public Optional<List<String>> from(ConfigurationSection config) {
+    public Optional<Long> from(ConfigurationSection config) {
         if(!config.contains(this.get()))
             return Optional.empty();
 
-        List<String> val = config.getStringList(this.get());
+        long val = config.getLong(this.get());
 
         return Optional.of(val);
     }
-
 }

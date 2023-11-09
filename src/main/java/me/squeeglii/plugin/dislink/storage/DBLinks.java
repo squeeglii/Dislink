@@ -33,7 +33,7 @@ public class DBLinks {
             PreparedStatement statement = null;
 
             try {
-                connection = Dislink.get().getDbConnection();
+                connection = Dislink.plugin().getDbConnection();
                 statement = connection.prepareStatement(SQL_GET_PAIRED_ACCOUNT_QUANTITY, discordId);
 
                 ResultSet result = statement.executeQuery();

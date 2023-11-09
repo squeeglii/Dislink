@@ -8,7 +8,7 @@ import java.util.Optional;
 public record DatabaseAccess(String address, String schema, String username, String password) {
 
     public static DatabaseAccess fromConfig() {
-        if (Dislink.get() == null)
+        if (Dislink.plugin() == null)
             throw new IllegalStateException("Tried to load database config without an initialised plugin.");
 
         Optional<String> addr = Cfg.DB_ADDRESS.dislink();

@@ -1,9 +1,6 @@
 package me.squeeglii.plugin.dislink.util;
 
-import me.squeeglii.plugin.dislink.data.BoolGetter;
-import me.squeeglii.plugin.dislink.data.IntGetter;
-import me.squeeglii.plugin.dislink.data.StringGetter;
-import me.squeeglii.plugin.dislink.data.StringListGetter;
+import me.squeeglii.plugin.dislink.data.*;
 
 public class Cfg {
 
@@ -15,6 +12,13 @@ public class Cfg {
 
     // Discord Bot Config
     public static final StringGetter DISCORD_TOKEN = new StringGetter("bot-token");
+    public static final SectionGetter SERVER_CONFIGS = new SectionGetter("server-configs");
+
+    //// Sub-section of SERVER_CONFIGS
+    public static final StringGetter DISCORD_SHORT_NAME = new StringGetter("short-name");
+    public static final LongGetter DISCORD_MEMBER_ROLE_ID = new LongGetter("member-role-id");
+    public static final LongGetter DISCORD_ADMIN_ROLE_ID = new LongGetter("admin-role-id");
+    public static final StringGetter DISCORD_MISSING_PERMS_MESSAGE = new StringGetter("missing-member-role-message");
 
 
     // General Pairing

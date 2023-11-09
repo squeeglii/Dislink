@@ -1,6 +1,8 @@
 package me.squeeglii.plugin.dislink.data;
 
 import me.squeeglii.plugin.dislink.Dislink;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Optional;
@@ -12,10 +14,10 @@ public abstract class ConfigGetter<T> extends Key<T> {
         super(key);
     }
 
-    public abstract Optional<T> from(FileConfiguration config);
+    public abstract Optional<T> from(ConfigurationSection config);
 
     public final Optional<T> dislink() {
-        return this.from(Dislink.get().getConfig());
+        return this.from(Dislink.plugin().getConfig());
     }
 
 }

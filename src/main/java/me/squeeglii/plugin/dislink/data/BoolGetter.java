@@ -1,5 +1,7 @@
 package me.squeeglii.plugin.dislink.data;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Optional;
@@ -11,7 +13,7 @@ public class BoolGetter extends ConfigGetter<Boolean> {
     }
 
     @Override
-    public Optional<Boolean> from(FileConfiguration config) {
+    public Optional<Boolean> from(ConfigurationSection config) {
         if(!config.contains(this.get()))
             return Optional.empty();
 

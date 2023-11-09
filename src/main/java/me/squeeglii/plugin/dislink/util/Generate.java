@@ -16,7 +16,7 @@ public class Generate {
      * See config entries 'pairing-code-blocks' & 'pairing-word-list'
      */
     public static String newLinkCode() {
-        if(Dislink.get() == null)
+        if(Dislink.plugin() == null)
             throw new IllegalStateException("Tried to generate a new link code without Dislink being loaded.");
 
         Optional<List<String>> optPool = Cfg.PAIRING_WORDS.dislink();

@@ -11,11 +11,11 @@ import java.util.UUID;
 public record LinkedAccount(String discordId, UUID minecraftId, String verifier, boolean isGuest) {
 
     public OfflinePlayer getPlayer() {
-        return Dislink.get().getServer().getOfflinePlayer(this.minecraftId);
+        return Dislink.plugin().getServer().getOfflinePlayer(this.minecraftId);
     }
 
     public Optional<Player> getOnlinePlayer() {
-        Player p = Dislink.get().getServer().getPlayer(this.minecraftId);
+        Player p = Dislink.plugin().getServer().getPlayer(this.minecraftId);
         return Optional.ofNullable(p);
     }
 

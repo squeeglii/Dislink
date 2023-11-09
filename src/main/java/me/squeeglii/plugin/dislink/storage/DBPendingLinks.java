@@ -46,7 +46,7 @@ public class DBPendingLinks {
             List<PreparedStatement> statements = new LinkedList<>();
 
             try {
-                conn = Dislink.get().getDbConnection();
+                conn = Dislink.plugin().getDbConnection();
                 conn.batch(connection -> {
                     Optional<String> existingLinkCode = getExistingLink(connection, statements, platformId);
 
@@ -122,7 +122,7 @@ public class DBPendingLinks {
             PreparedStatement statement = null;
 
             try {
-                connection = Dislink.get().getDbConnection();
+                connection = Dislink.plugin().getDbConnection();
                 statement = connection.prepareStatement(SQL_CLEAR_ALL);
 
                 statement.execute();
@@ -168,7 +168,7 @@ public class DBPendingLinks {
         ResultSet results = statement.executeQuery();
 
         if(!results.next()) {
-            Dislink.get().getLogger().warning("Failed to count link code dupes. This could mean the Database is broken!");
+            Dislink.plugin().getLogger().warning("Failed to count link code dupes. This could mean the Database is broken!");
             return Optional.empty();
         }
 

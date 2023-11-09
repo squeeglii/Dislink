@@ -40,14 +40,14 @@ public class PlayerLifecycleListener implements Listener {
     @EventHandler
     public void handleCustomWhitelist(AsyncPlayerPreLoginEvent event) {
         UUID accountId = event.getUniqueId();
-        Dislink.get().getLogger().info("Checking if %s has a linked account.".formatted(accountId));
+        Dislink.plugin().getLogger().info("Checking if %s has a linked account.".formatted(accountId));
 
         // If players is on the whitelist (even if it's turned off),
         // skip all verification on account linking.
         if(this.hasWhitelistBypass(accountId)) {
-            Dislink.get().getLogger().info("%s bypassed link check (Whitelisted)".formatted(accountId));
+            Dislink.plugin().getLogger().info("%s bypassed link check (Whitelisted)".formatted(accountId));
             LinkedAccount guestAcc = new LinkedAccount(null, accountId, "whitelist", true);
-            Dislink.get().getLinkedAccountCache().offerAccount(guestAcc);
+            Dislink.plugin().getLinkedAccountCache().offerAccount(guestAcc);
             return;
         }
 
@@ -57,7 +57,7 @@ public class PlayerLifecycleListener implements Listener {
             optLinkAccount = DBLinks.getLinkFor(accountId).get();
 
         } catch (Exception err) {
-            Dislink.get().getLogger()
+            Dislink.plugin().getLogger()
                     .throwing("PlayerLifecycleListener", "handleCustomWhitelist", err);
             event.disallow(Result.KICK_OTHER, FAILED_ACCOUNT_GET);
             return;
@@ -66,22 +66,22 @@ public class PlayerLifecycleListener implements Listener {
         // Successfully logged in - just let 'em through and cache it.
         if(optLinkAccount.isPresent()) {
             LinkedAccount existingLink = optLinkAccount.get();
-            Dislink.get().getLogger().info("%s is linked to <@%s>!".formatted(accountId, existingLink.discordId()));
-            Dislink.get().getLinkedAccountCache().offerAccount(existingLink);
+            Dislink.plugin().getLogger().info("%s is linked to <@%s>!".formatted(accountId, existingLink.discordId()));
+            Dislink.plugin().getLinkedAccountCache().offerAccount(existingLink);
             return;
         }
 
 
 
         // Failed to log in (not linked) - create new link.
-        Dislink.get().getLogger().info("%s is attempting to generate a pairing code...".formatted(accountId));
+        Dislink.plugin().getLogger().info("%s is attempting to generate a pairing code...".formatted(accountId));
         String pairCode;
 
         try {
             pairCode = DBPendingLinks.startLinkingFor(accountId).get();
 
         } catch (CompletionException err) {
-            Dislink.get()
+            Dislink.plugin()
                     .getLogger()
                     .throwing("PlayerLifecycleListener", "handleCustomWhitelist", err.getCause());
 
@@ -92,7 +92,7 @@ public class PlayerLifecycleListener implements Listener {
             return;
 
         } catch (Exception err) {
-            Dislink.get()
+            Dislink.plugin()
                    .getLogger()
                    .throwing("PlayerLifecycleListener", "handleCustomWhitelist", err);
             event.disallow(Result.KICK_OTHER, FAILED_CODE_GENERATION_OTHER);
@@ -104,7 +104,7 @@ public class PlayerLifecycleListener implements Listener {
     }
 
     private boolean hasWhitelistBypass(UUID uuid) {
-        Server server = Dislink.get().getServer();
+        Server server = Dislink.plugin().getServer();
 
         if(!server.hasWhitelist())
             return false;
