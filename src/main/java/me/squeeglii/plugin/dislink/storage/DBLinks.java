@@ -1,5 +1,13 @@
 package me.squeeglii.plugin.dislink.storage;
 
+import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.exception.MissedFetchException;
+import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
+import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
+import me.squeeglii.plugin.dislink.util.Run;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -7,13 +15,46 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DBLinks {
 
+    private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM UserLinks WHERE discord_id=?;";
+
     /**
      * Checks how many accounts are already linked to a single discord account.
      * @param discordId the discord account id
      * @return completable future returned once complete - how many accounts were found to be fully linked.
      */
     public static CompletableFuture<Integer> getExistingAccountQuantityFor(String discordId) {
-        return null;
+        CompletableFuture<Integer> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+
+            try {
+                connection = Dislink.get().getDbConnection();
+                statement = connection.prepareStatement(SQL_GET_PAIRED_ACCOUNT_QUANTITY, discordId);
+
+                ResultSet result = statement.executeQuery();
+
+                if(!result.next())
+                    throw new MissedFetchException("Failed to get amount of paired accounts.");
+
+                int count = result.getInt(1);
+
+                output.complete(count);
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+                return;
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+
+            output.complete(null);
+        });
+
+        return output;
     }
 
     /**

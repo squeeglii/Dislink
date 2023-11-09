@@ -1,5 +1,6 @@
 package me.squeeglii.plugin.dislink;
 
+import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseAccess;
@@ -33,6 +34,16 @@ public final class Dislink extends JavaPlugin {
         this.getServer().getPluginManager()
                 .registerEvents(new PlayerLifecycleListener(), this);
 
+        DBLinks.getExistingAccountQuantityFor("test_user_not_real").whenComplete((ret, err) -> {
+            if(err != null) {
+                this.getLogger().info("Error trying to fetch paired account count for 'test_user_not_real' account");
+                this.getLogger().throwing("Dislink", "getExistingAccountQuantityFor", err);
+                return;
+            }
+
+            this.getLogger().info("'test_user_not_real' has %s accounts linked.".formatted(ret));
+        });
+
         if(Cfg.PRUNE_PENDING_LINKS_ON_START.dislink().orElse(true)) {
             DBPendingLinks.clearPendingLinks().whenComplete((ret, err) -> {
                 if(err != null)
@@ -41,8 +52,6 @@ public final class Dislink extends JavaPlugin {
                 this.getLogger().info("Cleared existing pending account links. Codes must be regenerated.");
             });
         }
-
-
     }
 
     @Override
