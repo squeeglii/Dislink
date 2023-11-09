@@ -8,6 +8,7 @@ import me.squeeglii.plugin.dislink.util.Run;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -58,12 +59,11 @@ public class DBLinks {
     }
 
     /**
-     * Checks if a given Minecraft account is linked to a Discord account.
-     * @param platformId the minecraft account id (dependent on java / bedrock)
-     * @param isJavaAccount is the minecraft account id for Java or Bedrock
-     * @return completable future returned once complete - true if the link was successfully completed.
+     * Checks if a given Minecraft account is linked to a Discord account, returning the data of the link entry.
+     * @param platformId the minecraft account id
+     * @return completable future returned once complete - optional is filled if the link existed.
      */
-    public static CompletableFuture<Boolean> isAccountLinked(String platformId, boolean isJavaAccount) {
+    public static CompletableFuture<Boolean> getLinkFor(UUID platformId) {
         return null;
     }
 
@@ -71,13 +71,11 @@ public class DBLinks {
      * Completes a link between a Discord account with a Minecraft account without checking if the pairing tokens match.
      * Clears any Pending Links for that account as well.
      * @param discordId the discord account id to pair with
-     * @param platformId the minecraft account id (dependent on java / bedrock)
-     * @param isJavaAccount is the minecraft account id for Java or Bedrock
+     * @param platformId the minecraft account id
      * @param verifier where did the player get verified from (admin, [discord server short name], DMs?)
      * @return completable future returned once complete - true if the link was successfully completed.
      */
-    public static CompletableFuture<Boolean> createLinkBetween(String discordId, String platformId,
-                                                               boolean isJavaAccount, String verifier) {
+    public static CompletableFuture<Boolean> createLinkBetween(String discordId, String platformId, String verifier) {
         return null;
     }
 

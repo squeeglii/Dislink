@@ -6,6 +6,7 @@ import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
 
 import java.sql.PreparedStatement;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -17,12 +18,11 @@ public class DBPendingLinks {
 
 
     /**
-     * Asynchronously begins the linking process for a given Minecraft account. If
+     * Asynchronously begins the linking process for a given Minecraft account.
      * @param platformId the id of the account (whatever is primarily used to identify it)
-     * @param isJavaAccount is the account native to Java Edition, or is it Bedrock?
      * @return a link code to enter via the discord command to complete the link.
      */
-    public static CompletableFuture<String> startLinkingFor(String platformId, boolean isJavaAccount) {
+    public static CompletableFuture<String> startLinkingFor(UUID platformId) {
         CompletableFuture<String> output = new CompletableFuture<>();
 
 
@@ -33,14 +33,13 @@ public class DBPendingLinks {
     /**
      * Asynchronously checks if the link code provided matches with a pending link entry and
      * triggers the completion of the linking process if the codes match.
-     * @param discordId
-     * @param accountId the id of the account (whatever is primarily used to identify it)
-     * @param isJavaAccount is the account native to Java Edition, or is it Bedrock?
+     * @param discordId the id of the discord account being paired to
+     * @param accountId the id of the minecraft account (whatever is primarily used to identify it)
      * @param pairCode the code to check against the code stored in-database
      * @param verifier where did the player get verified from (admin, [discord server short name], DMs?)
      * @return a link code to enter via the discord command to complete the link.
      */
-    public static CompletableFuture<LinkResult> tryLink(String discordId, String accountId, boolean isJavaAccount,
+    public static CompletableFuture<LinkResult> tryLink(String discordId, UUID accountId,
                                                         String pairCode, String verifier) {
         return null;
     }
