@@ -5,11 +5,11 @@ import java.util.concurrent.CompletableFuture;
 public class DBLinks {
 
 
-    public CompletableFuture<Integer> getExistingAccountQuantityFor(String discordId) {
+    public static CompletableFuture<Integer> getExistingAccountQuantityFor(String discordId) {
         return null;
     }
 
-    public CompletableFuture<Boolean> isAccountLinked(String platformId, boolean isJavaAccount) {
+    public static CompletableFuture<Boolean> isAccountLinked(String platformId, boolean isJavaAccount) {
         return null;
     }
 
@@ -20,7 +20,7 @@ public class DBLinks {
      * @param isJavaAccount
      * @return
      */
-    public CompletableFuture<Boolean> createLinkBetween(String discordId, String platformId, boolean isJavaAccount) {
+    public static CompletableFuture<Boolean> createLinkBetween(String discordId, String platformId, boolean isJavaAccount) {
         return null;
     }
 

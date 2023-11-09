@@ -13,9 +13,14 @@ public class Cfg {
     public static final StringGetter DB_USERNAME = new StringGetter("database-username");
     public static final StringGetter DB_PASSWORD = new StringGetter("database-password");
 
+    // Discord Bot Config
+    public static final StringGetter DISCORD_TOKEN = new StringGetter("bot-token");
+
+
     // General Pairing
     public static final IntGetter MAX_ACCOUNT_LIMIT = new IntGetter("paired-account-limit");
     public static final BoolGetter PRUNE_PENDING_LINKS_ON_START = new BoolGetter("prune-pending-links-on-restart");
+
 
     // Pairing Code Generation
     public static final IntGetter PAIRING_BLOCKS = new IntGetter("pairing-code-blocks");

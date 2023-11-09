@@ -15,7 +15,7 @@ database-password:
 # Set to two by default with the intention to allow one bedrock + one java
 paired-account-limit: 2
 
-prune-pending-links-on-restart: true,
+prune-pending-links-on-restart: true
 
 
 

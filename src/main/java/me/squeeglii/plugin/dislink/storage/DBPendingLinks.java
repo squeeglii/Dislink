@@ -1,8 +1,16 @@
 package me.squeeglii.plugin.dislink.storage;
 
+import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.util.Run;
+import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
+import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
+
+import java.sql.PreparedStatement;
 import java.util.concurrent.CompletableFuture;
 
 public class DBPendingLinks {
+
+    public static final String SQL_CLEAR_ALL = "TRUNCATE TABLE PendingLinks;";
 
 
     /**
@@ -11,8 +19,12 @@ public class DBPendingLinks {
      * @param isJavaAccount is the account native to Java Edition, or is it Bedrock?
      * @return a link code to enter via the discord command to complete the link.
      */
-    private CompletableFuture<String> startLinkingFor(String platformId, boolean isJavaAccount) {
-        return null;
+    public static CompletableFuture<String> startLinkingFor(String platformId, boolean isJavaAccount) {
+        CompletableFuture<String> output = new CompletableFuture<>();
+
+
+
+        return output;
     }
 
     /**
@@ -23,8 +35,37 @@ public class DBPendingLinks {
      * @param isJavaAccount is the account native to Java Edition, or is it Bedrock?
      * @return a link code to enter via the discord command to complete the link.
      */
-    private CompletableFuture<LinkResult> tryLink(String discordId, String accountId, boolean isJavaAccount, String pairCode) {
+    public static CompletableFuture<LinkResult> tryLink(String discordId, String accountId, boolean isJavaAccount, String pairCode) {
         return null;
+    }
+
+
+    public static CompletableFuture<Void> clearPendingLinks() {
+        CompletableFuture<Void> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+
+            try {
+                connection = Dislink.get().getDbConnection();
+                statement = connection.prepareStatement(SQL_CLEAR_ALL);
+
+                statement.execute();
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+                return;
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+
+            output.complete(null);
+        });
+
+        return output;
     }
 
 }

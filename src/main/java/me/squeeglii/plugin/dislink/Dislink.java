@@ -1,9 +1,13 @@
 package me.squeeglii.plugin.dislink;
 
+import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
+import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseAccess;
 import me.squeeglii.plugin.dislink.util.Cfg;
-import me.squeeglii.plugin.dislink.util.Generate;
+import me.squeeglii.plugin.dislink.util.Run;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.sql.SQLException;
 
 public final class Dislink extends JavaPlugin {
 
@@ -18,18 +22,27 @@ public final class Dislink extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.threadWatcher = new Run();
+
+        // Must be called before loading DB config
+        // as it adds the necessary fields.
+        this.saveDefaultConfig();
+
         this.databaseCredentials = DatabaseAccess.fromConfig();
 
-        this.saveDefaultConfig();
 
         this.getServer().getPluginManager()
                 .registerEvents(new PlayerLifecycleListener(), this);
 
-        int maxAccounts = Cfg.MAX_ACCOUNT_LIMIT.dislink().orElseThrow();
+        if(Cfg.PRUNE_PENDING_LINKS_ON_START.dislink().orElse(true)) {
+            DBPendingLinks.clearPendingLinks().whenComplete((ret, err) -> {
+                if(err != null)
+                    this.getLogger().throwing("Dislink", "clearPendingLinks", err);
 
-        for(int i = 0; i < 10; i++) {
-            this.getLogger().info(Generate.newLinkCode());
+                this.getLogger().info("Cleared existing pending account links . Codes must be regenerated.");
+            });
         }
+
+
     }
 
     @Override
@@ -40,6 +53,14 @@ public final class Dislink extends JavaPlugin {
 
     public Run getThreadWatcher() {
         return this.threadWatcher;
+    }
+
+    public DatabaseAccess getDbCredentials() {
+        return this.databaseCredentials;
+    }
+
+    public ConnectionWrapper getDbConnection() throws SQLException {
+        return ConnectionWrapper.fromAccess(this.databaseCredentials);
     }
 
     public static Dislink get() {
