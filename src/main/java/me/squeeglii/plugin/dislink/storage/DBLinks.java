@@ -20,6 +20,8 @@ public class DBLinks {
 
     private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM UserLinks WHERE discord_id=?;";
 
+    public static final String SQL_FORM_LINK = "INSERT INTO UserLinks (discord_id, platform_id, validator) VALUES (?, ?, ?);";
+
     /**
      * Checks how many accounts are already linked to a single discord account.
      * @param discordId the discord account id
@@ -68,6 +70,9 @@ public class DBLinks {
      */
     public static OptionalFuture<LinkedAccount> getLinkFor(UUID platformId) {
         OptionalFuture<LinkedAccount> optionalCompletableFuture = new OptionalFuture<>();
+
+        //TODO: Actually implement this
+
         optionalCompletableFuture.complete(Optional.empty());
         return optionalCompletableFuture;
     }

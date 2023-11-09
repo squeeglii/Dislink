@@ -5,6 +5,7 @@ import me.squeeglii.plugin.dislink.util.Cfg;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -12,23 +13,38 @@ import java.util.*;
 
 public class DiscordManager {
 
+    private Thread botThread = null;
+    private JDA bot = null;
     private HashMap<Long, ServerAdapter> serverAdapters;
 
 
     public void start(String token) {
         this.serverAdapters = this.parseAdaptersFromConfig();
 
-        JDABuilder botBuilder = JDABuilder.createLight(token, Collections.emptyList())
-                .setActivity(Activity.customStatus("Telling bad jokes 24/7"));
+        this.botThread = new Thread(() -> {
+            try {
 
-        serverAdapters.values().forEach(botBuilder::addEventListeners);
+                JDABuilder botBuilder = JDABuilder.createLight(token, Collections.emptyList())
+                        .setActivity(Activity.customStatus("Telling bad jokes 24/7"));
 
-        JDA bot = botBuilder.build();
+                this.serverAdapters.values().forEach(botBuilder::addEventListeners);
 
-        bot.updateCommands().addCommands(
-                Commands.slash("link", "Go in-game to link your account & enter the code it gives you here.")
-                        .setGuildOnly(true) // Needs to check roles
-        ).queue();
+                this.bot = botBuilder.build();
+
+                this.bot.updateCommands().addCommands(
+                        Commands.slash("link", "Go in-game to link your account & enter the code it gives you here.")
+                                .addOption(OptionType.STRING, "code", "The link code", true, false)
+                                .setGuildOnly(true) // Needs to check roles
+                ).queue();
+
+            } catch (Exception err) {
+                Dislink.plugin()
+                       .getLogger()
+                       .throwing("Discord", "init", err);
+            }
+        });
+
+        this.botThread.start();
     }
 
     private HashMap<Long, ServerAdapter> parseAdaptersFromConfig() {
@@ -86,4 +102,8 @@ public class DiscordManager {
         }
     }
 
+
+    public JDA getBot() {
+        return this.bot;
+    }
 }

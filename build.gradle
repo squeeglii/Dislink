@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 boolean isModVersionDefined = project.properties["plugin_version"] == null ||
@@ -28,10 +29,8 @@ repositories {
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${project.properties.spigot_distribution}"
 
-    dependencies {
-        implementation("net.dv8tion:JDA:5.0.0-beta.17") {
-            exclude module: 'opus-java'
-        }
+    implementation("net.dv8tion:JDA:5.0.0-beta.17") {
+        exclude module: 'opus-java'
     }
 }
 

@@ -30,6 +30,10 @@ public class DBPendingLinks {
 
     public static final String SQL_GET_EXISTING_LINKS = "SELECT link_code FROM PendingLinks WHERE platform_id=?;";
 
+    public static final String SQL_GET_LINK_BY_CODE = "SELECT platform_id FROM PendingLinks WHERE link_code=?;";
+
+    public static final String SQL_CLEAR_PENDING_LINKS = "DELETE * FROM PendingLinks WHERE platform_id=?;";
+
 
     /**
      * Asynchronously begins the linking process for a given Minecraft account.
@@ -88,8 +92,6 @@ public class DBPendingLinks {
 
                 DatabaseHelper.closeQuietly(conn);
             }
-
-            output.complete(null);
         });
 
         return output;
@@ -99,14 +101,58 @@ public class DBPendingLinks {
      * Asynchronously checks if the link code provided matches with a pending link entry and
      * triggers the completion of the linking process if the codes match.
      * @param discordId the id of the discord account being paired to
-     * @param accountId the id of the minecraft account (whatever is primarily used to identify it)
      * @param pairCode the code to check against the code stored in-database
      * @param verifier where did the player get verified from (admin, [discord server short name], DMs?)
      * @return a link code to enter via the discord command to complete the link.
      */
-    public static CompletableFuture<LinkResult> tryLink(String discordId, UUID accountId,
-                                                        String pairCode, String verifier) {
-        return null;
+    public static CompletableFuture<LinkResult> tryLink(String discordId, String pairCode, String verifier) {
+        CompletableFuture<LinkResult> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper conn = null;
+            List<PreparedStatement> statements = new LinkedList<>();
+
+            try {
+                conn = Dislink.plugin().getDbConnection();
+                conn.batch(connection -> {
+                    PreparedStatement getPlatformId = connection.prepareStatement(SQL_GET_LINK_BY_CODE, pairCode.trim().toLowerCase());
+                    statements.add(getPlatformId);
+
+                    ResultSet result = getPlatformId.executeQuery();
+
+                    if(!result.next()) {
+                        output.complete(LinkResult.INVALID_CODE);
+                        return;
+                    }
+
+                    String platformId = result.getString(1);
+
+                    PreparedStatement finaliseLink = connection.prepareStatement(DBLinks.SQL_FORM_LINK, discordId, platformId, verifier);
+                    statements.add(finaliseLink);
+                    finaliseLink.execute();
+
+                    PreparedStatement cleanUpLink = connection.prepareStatement(SQL_CLEAR_PENDING_LINKS, platformId);
+                    statements.add(cleanUpLink);
+                    cleanUpLink.execute();
+
+                    output.complete(LinkResult.SUCCESS);
+                });
+
+            } catch (Exception err) {
+                output.complete(LinkResult.INTERNAL_ERROR);
+                Dislink.plugin()
+                       .getLogger()
+                       .throwing("Database", "completeLink", err);
+
+            } finally {
+                for(PreparedStatement statement: statements)
+                    DatabaseHelper.closeQuietly(statement);
+
+                DatabaseHelper.closeQuietly(conn);
+            }
+        });
+
+        return output;
     }
 
 
