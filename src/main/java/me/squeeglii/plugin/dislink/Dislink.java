@@ -2,10 +2,12 @@ package me.squeeglii.plugin.dislink;
 
 import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
+import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseAccess;
 import me.squeeglii.plugin.dislink.util.Cfg;
 import me.squeeglii.plugin.dislink.util.Run;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -15,6 +17,7 @@ public final class Dislink extends JavaPlugin {
     private static Dislink instance = null;
 
     private Run threadWatcher;
+    private LinkedAccountCache linkedAccountCache;
 
     private DatabaseAccess databaseCredentials;
 
@@ -23,6 +26,7 @@ public final class Dislink extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.threadWatcher = new Run();
+        this.linkedAccountCache = new LinkedAccountCache();
 
         // Must be called before loading DB config
         // as it adds the necessary fields.
@@ -30,9 +34,8 @@ public final class Dislink extends JavaPlugin {
 
         this.databaseCredentials = DatabaseAccess.fromConfig();
 
-
-        this.getServer().getPluginManager()
-                .registerEvents(new PlayerLifecycleListener(), this);
+        this.event(new PlayerLifecycleListener())
+            .event(this.linkedAccountCache);
 
         DBLinks.getExistingAccountQuantityFor("test_user_not_real").whenComplete((ret, err) -> {
             if(err != null) {
@@ -60,8 +63,19 @@ public final class Dislink extends JavaPlugin {
             instance = null;
     }
 
+
+    private Dislink event(Listener listener) {
+        this.getServer().getPluginManager().registerEvents(listener, this);
+        return this;
+    }
+
+
     public Run getThreadWatcher() {
         return this.threadWatcher;
+    }
+
+    public LinkedAccountCache getLinkedAccountCache() {
+        return this.linkedAccountCache;
     }
 
     public DatabaseAccess getDbCredentials() {

@@ -1,5 +1,6 @@
 package me.squeeglii.plugin.dislink;
 
+import me.squeeglii.plugin.dislink.storage.LinkedAccount;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -20,10 +21,14 @@ public class PlayerLifecycleListener implements Listener {
                 ChatColor.RED, ChatColor.AQUA, ChatColor.BOLD
         );
 
+        UUID accountId = event.getUniqueId();
+
         // If players is on the whitelist (even if it's turned off),
         // skip all verification on account linking.
-        if(this.hasWhitelistBypass(event.getUniqueId()))
+        if(this.hasWhitelistBypass(accountId)) {
+            LinkedAccount guestAcc = new LinkedAccount(null, accountId, "whitelist", true);
             return;
+        }
 
 
         event.disallow(Result.KICK_WHITELIST, formattedKickMessage);
