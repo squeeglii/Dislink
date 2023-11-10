@@ -9,7 +9,10 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.Set;
 
 public class DiscordManager {
 

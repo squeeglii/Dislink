@@ -2,8 +2,6 @@ package me.squeeglii.plugin.dislink.data;
 
 import me.squeeglii.plugin.dislink.Dislink;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Optional;
 

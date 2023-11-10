@@ -20,7 +20,7 @@ server-configs:
   id-here:  # This bot can handle different discord servers differently.
     short-name: a-server
     member-role-id:  # Leave empty to allow everyone to join
-    admin-role-id:   # Leaving this empty
+    admin-role-id:   # Allows auto-op for certain roles Leaving this empty skips this behaviour.
     missing-member-role-message: # Allows you to do a cheeky ad for memberships.
 
 

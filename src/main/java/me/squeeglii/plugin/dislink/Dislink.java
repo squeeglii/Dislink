@@ -1,7 +1,6 @@
 package me.squeeglii.plugin.dislink;
 
 import me.squeeglii.plugin.dislink.discord.DiscordManager;
-import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;

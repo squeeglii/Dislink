@@ -2,11 +2,11 @@ package me.squeeglii.plugin.dislink.storage;
 
 import me.squeeglii.plugin.dislink.Dislink;
 import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
+import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
+import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
 import me.squeeglii.plugin.dislink.util.Cfg;
 import me.squeeglii.plugin.dislink.util.Generate;
 import me.squeeglii.plugin.dislink.util.Run;
-import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
-import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
