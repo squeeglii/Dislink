@@ -34,9 +34,12 @@ public class ServerAdapter extends ListenerAdapter {
         this.shortName = shortName == null
                 ? "unknown"
                 : shortName;
-        this.missingLinkPermsMessage = missingPermsMessage == null
+
+        String missingPerms = missingPermsMessage == null
                 ? DEFAULT_NO_LINK_PERMS_NOTICE
                 : missingPermsMessage;
+
+        this.missingLinkPermsMessage = missingPerms.replace("\\n", "\n");
 
         if(this.shortName.length() > 12)
             throw new IllegalArgumentException("Short-name for discord server is restricted to 12 characters in length.");
@@ -72,7 +75,7 @@ public class ServerAdapter extends ListenerAdapter {
         if(this.shouldIgnore(event.getGuild()))
             return;
 
-        switch (event.getCommandId()) {
+        switch (event.getName()) {
             case "link" -> this.handleLinkCommand(event);
             case "unlink" -> {
 

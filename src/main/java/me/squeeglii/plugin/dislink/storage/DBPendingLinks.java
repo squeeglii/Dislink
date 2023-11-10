@@ -32,7 +32,7 @@ public class DBPendingLinks {
 
     public static final String SQL_GET_LINK_BY_CODE = "SELECT platform_id FROM PendingLinks WHERE link_code=?;";
 
-    public static final String SQL_CLEAR_PENDING_LINKS = "DELETE * FROM PendingLinks WHERE platform_id=?;";
+    public static final String SQL_CLEAR_PENDING_LINKS = "DELETE FROM PendingLinks WHERE platform_id=?;";
 
 
     /**
@@ -140,9 +140,8 @@ public class DBPendingLinks {
 
             } catch (Exception err) {
                 output.complete(LinkResult.INTERNAL_ERROR);
-                Dislink.plugin()
-                       .getLogger()
-                       .throwing("Database", "completeLink", err);
+                Dislink.plugin().getLogger().info("Err: "+err.getMessage());
+                err.printStackTrace();
 
             } finally {
                 for(PreparedStatement statement: statements)
