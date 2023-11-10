@@ -1,6 +1,7 @@
 package me.squeeglii.plugin.dislink.storage;
 
 import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.exception.MissedFetchException;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
@@ -9,6 +10,8 @@ import me.squeeglii.plugin.dislink.util.Run;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 public class DBLinks {
 
     private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM UserLinks WHERE discord_id=?;";
+
+    private static final String SQL_GET_PAIRING = "SELECT discord_id, validator FROM UserLinks WHERE platform_id=?;";
 
     public static final String SQL_FORM_LINK = "INSERT INTO UserLinks (discord_id, platform_id, validator) VALUES (?, ?, ?);";
 
@@ -69,12 +74,40 @@ public class DBLinks {
      * @return completable future returned once complete - optional is filled if the link existed.
      */
     public static OptionalFuture<LinkedAccount> getLinkFor(UUID platformId) {
-        OptionalFuture<LinkedAccount> optionalCompletableFuture = new OptionalFuture<>();
+        OptionalFuture<LinkedAccount> output = new OptionalFuture<>();
+        String platformIdStr = platformId.toString();
 
-        //TODO: Actually implement this
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
 
-        optionalCompletableFuture.complete(Optional.empty());
-        return optionalCompletableFuture;
+            try {
+                connection = Dislink.plugin().getDbConnection();
+                statement = connection.prepareStatement(SQL_GET_PAIRING, platformIdStr);
+
+                ResultSet results = statement.executeQuery();
+
+                if(!results.next()) {
+                    output.complete(Optional.empty());
+                    return;
+                }
+
+                String discordId = results.getString(1);
+                String validator = results.getString(2);
+
+                LinkedAccount linkedAccount = new LinkedAccount(discordId, platformId, validator, false);
+                output.complete(Optional.of(linkedAccount));
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+        });
+
+        return output;
     }
 
     /**
@@ -85,8 +118,32 @@ public class DBLinks {
      * @param verifier where did the player get verified from (admin, [discord server short name], DMs?)
      * @return completable future returned once complete - true if the link was successfully completed.
      */
-    public static CompletableFuture<Boolean> createLinkBetween(String discordId, String platformId, String verifier) {
-        return null;
+    public static CompletableFuture<Void> createLinkBetween(String discordId, String platformId, String verifier) {
+        CompletableFuture<Void> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+
+            try {
+                connection = Dislink.plugin().getDbConnection();
+
+                statement = connection.prepareStatement(SQL_FORM_LINK, discordId, platformId, verifier);
+                statement.execute();
+
+                output.complete(null);
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+                return;
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+        });
+
+        return output;
     }
 
 }
