@@ -21,6 +21,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DBLinks {
 
+    private static final String SQL_DELETE_ALL_FOR_DISCORD = "DELETE FROM UserLinks WHERE discord_id=?;";
+
     private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM UserLinks WHERE discord_id=?;";
 
     private static final String SQL_GET_PAIRING = "SELECT discord_id, validator FROM UserLinks WHERE platform_id=?;";
@@ -136,6 +138,34 @@ public class DBLinks {
             } catch (Exception err) {
                 output.completeExceptionally(err);
                 return;
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+        });
+
+        return output;
+    }
+
+
+    public static CompletableFuture<Void> deleteAllLinksFor(String discordId) {
+        CompletableFuture<Void> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+
+            try {
+                connection = Dislink.plugin().getDbConnection();
+
+                statement = connection.prepareStatement(SQL_DELETE_ALL_FOR_DISCORD, discordId);
+                statement.execute();
+
+                output.complete(null);
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
 
             } finally {
                 DatabaseHelper.closeQuietly(statement);

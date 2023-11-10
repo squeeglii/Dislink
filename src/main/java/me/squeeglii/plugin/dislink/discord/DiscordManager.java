@@ -34,6 +34,9 @@ public class DiscordManager {
                 this.bot.updateCommands().addCommands(
                         Commands.slash("link", "Go in-game to link your account & enter the code it gives you here.")
                                 .addOption(OptionType.STRING, "code", "The link code", true, false)
+                                .setGuildOnly(true), // Needs to check roles
+
+                        Commands.slash("unlinkall", "Unlinks all accounts from your Discord account.")
                                 .setGuildOnly(true) // Needs to check roles
                 ).queue();
 

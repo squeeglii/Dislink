@@ -72,16 +72,6 @@ public final class Dislink extends JavaPlugin {
     }
 
     private void postInitTasks() {
-        DBLinks.getExistingAccountQuantityFor("test_user_not_real").whenComplete((ret, err) -> {
-            if(err != null) {
-                this.getLogger().info("Error trying to fetch paired account count for 'test_user_not_real' account");
-                this.getLogger().throwing("Dislink", "getExistingAccountQuantityFor", err);
-                return;
-            }
-
-            this.getLogger().info("'test_user_not_real' has %s accounts linked.".formatted(ret));
-        });
-
         if(Cfg.PRUNE_PENDING_LINKS_ON_START.dislink().orElse(true)) {
             DBPendingLinks.clearPendingLinks().whenComplete((ret, err) -> {
                 if(err != null)

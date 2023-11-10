@@ -1,7 +1,9 @@
 package me.squeeglii.plugin.dislink.discord;
 
 import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
+import me.squeeglii.plugin.dislink.util.Cfg;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -77,9 +79,7 @@ public class ServerAdapter extends ListenerAdapter {
 
         switch (event.getName()) {
             case "link" -> this.handleLinkCommand(event);
-            case "unlink" -> {
-
-            }
+            case "unlinkall" -> this.handleUnlinkAllCommand(event);
         }
 
     }
@@ -124,7 +124,7 @@ public class ServerAdapter extends ListenerAdapter {
             return;
         }
 
-        DBPendingLinks.tryLink(userId, code, this.shortName).whenComplete((ret, err) -> {
+        DBPendingLinks.tryCompleteLink(userId, code, this.shortName).whenComplete((ret, err) -> {
             MessageEmbed response = switch (ret) {
                 case INTERNAL_ERROR -> this.generateGenericErrorEmbed("D002");
                 case NO_LINKS_PENDING -> new EmbedBuilder()
@@ -139,6 +139,20 @@ public class ServerAdapter extends ListenerAdapter {
                         .setFooter("/link")
                         .setColor(new Color(200, 45, 10))
                         .build();
+                case ACCOUNT_CAP_REACHED ->  new EmbedBuilder()
+                        .setTitle("You've hit the paired account limit.")
+                        .setDescription(
+                                """
+                                You're limited to %s Minecraft accounts per Discord account.
+
+                                To pair more Minecraft accounts, you can either:
+                                - Unpair all your current accounts with /unlinkall and pair new ones
+                                - Contact server management to get an exemption.
+                              
+                                """.formatted(Cfg.MAX_ACCOUNT_LIMIT.dislink().orElse(1)))
+                        .setFooter("/link")
+                        .setColor(new Color(200, 200, 10))
+                        .build();
                 case SUCCESS -> new EmbedBuilder()
                         .setTitle("Welcome!")
                         .setDescription("You've successfully linked your account! Re-join the Minecraft server and you should be able to play!")
@@ -148,6 +162,32 @@ public class ServerAdapter extends ListenerAdapter {
             };
 
             event.getHook().editOriginal(MessageEditData.fromEmbeds(response)).queue();
+        });
+    }
+
+
+    public void handleUnlinkAllCommand(SlashCommandInteractionEvent event) {
+        event.getHook().setEphemeral(true);
+        event.deferReply(true).queue();
+
+        DBLinks.deleteAllLinksFor(event.getUser().getId()).whenComplete((ret, err) -> {
+
+            if(err != null) {
+                err.printStackTrace();
+                event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                        this.generateGenericErrorEmbed("U001"))
+                ).queue();
+                return;
+            }
+
+            event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                    new EmbedBuilder()
+                            .setTitle("Completed!")
+                            .setDescription("Unlinked all Minecraft accounts associated with your Discord account.")
+                            .setFooter("/unlinkall")
+                            .setColor(new Color(150, 45, 170))
+                            .build()
+            )).queue();
         });
     }
 

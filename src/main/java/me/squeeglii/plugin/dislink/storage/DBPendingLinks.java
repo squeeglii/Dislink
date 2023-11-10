@@ -105,10 +105,20 @@ public class DBPendingLinks {
      * @param verifier where did the player get verified from (admin, [discord server short name], DMs?)
      * @return a link code to enter via the discord command to complete the link.
      */
-    public static CompletableFuture<LinkResult> tryLink(String discordId, String pairCode, String verifier) {
+    public static CompletableFuture<LinkResult> tryCompleteLink(String discordId, String pairCode, String verifier) {
         CompletableFuture<LinkResult> output = new CompletableFuture<>();
 
         Run.async(() -> {
+            int currentAccountCount = DBLinks.getExistingAccountQuantityFor(discordId).join();
+            int maxAccountCount = Cfg.MAX_ACCOUNT_LIMIT.dislink().orElse(2);
+
+            // Would adding another account exceed the limit? Fail time!
+            if(currentAccountCount >= maxAccountCount) {
+                output.complete(LinkResult.ACCOUNT_CAP_REACHED);
+                return;
+            }
+
+
             ConnectionWrapper conn = null;
             List<PreparedStatement> statements = new LinkedList<>();
 
