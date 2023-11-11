@@ -5,19 +5,22 @@ import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.util.Cfg;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.HashMap;
 
 public class ServerAdapter extends ListenerAdapter {
+
+
 
     public static final String DEFAULT_NO_LINK_PERMS_NOTICE = "It seems that you don't have permission to use /link - have you got the right roles?";
 
@@ -28,6 +31,8 @@ public class ServerAdapter extends ListenerAdapter {
     private final Long adminRoleId;
 
     private final String missingLinkPermsMessage;
+
+    private final HashMap<String, Runnable> postGdprAction;
 
     public ServerAdapter(long guildId, String shortName, Long memberId, Long adminId, String missingPermsMessage) {
         this.guildId = guildId;
@@ -45,30 +50,8 @@ public class ServerAdapter extends ListenerAdapter {
 
         if(this.shortName.length() > 12)
             throw new IllegalArgumentException("Short-name for discord server is restricted to 12 characters in length.");
-    }
 
-
-    public boolean canUserLink(Member member) {
-        if(this.memberRoleId == null)
-            return true;
-
-        Role role = Dislink.discord().getBot().getRoleById(this.memberRoleId);
-        return member.getRoles().contains(role);
-    }
-
-    public boolean isUserAdmin(Member member) {
-        if(this.adminRoleId == null)
-            return false;
-
-        Role role = Dislink.discord().getBot().getRoleById(this.adminRoleId);
-        return member.getRoles().contains(role);
-    }
-
-    private boolean shouldIgnore(Guild guild) {
-        if(guild == null)
-            return true;
-
-        return guild.getIdLong() != this.guildId;
+        this.postGdprAction = new HashMap<>();
     }
 
 
@@ -84,21 +67,132 @@ public class ServerAdapter extends ListenerAdapter {
 
     }
 
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        event.deferEdit().setComponents().queue();
+
+        // Admittedly, this is quite a bad way to implement this as it means the only buttons
+        // supported must be for GDPR consent under /link.
+
+        // Change this if you need more buttons !!
+        String userId = event.getUser().getId();
+
+        switch (event.getButton().getLabel().trim().toLowerCase()) {
+
+            case "agree" -> {
+                Runnable action = this.postGdprAction.remove(userId);
+
+                if(action == null) {
+                    event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                            this.generateGenericErrorEmbed("G001")
+                    )).queue();
+                    return;
+                }
+
+                action.run();
+            }
+
+            case "cancel" -> {
+                this.postGdprAction.remove(userId);
+
+                // Clean up any existing data now that consent is revoked.
+                DBLinks.deleteAllLinksFor(userId).whenComplete((ret, err) -> {
+
+                    if(err != null) {
+                        event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                                this.generateGenericErrorEmbed("G002")
+                        )).queue();
+                        return;
+                    }
+
+                    event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                            new EmbedBuilder()
+                                    .setTitle("Alrighty then!")
+                                    .setDescription("Your account has not been linked & any previously linked accounts have been unlinked.")
+                                    .setFooter("/link")
+                                    .setColor(new Color(200, 200, 200))
+                                    .build()
+                    )).queue();
+                });
+            }
+
+        }
+    }
+
+
     private void handleLinkCommand(SlashCommandInteractionEvent event) {
         event.getHook().setEphemeral(true);
         event.deferReply(true).queue();
 
+        String code = event.getOption("code", "", OptionMapping::getAsString);
         Member member = event.getMember();
+        String memberId = event.getUser().getId();
+        boolean showConsentMenu = Cfg.GDPR_CONSENT.dislink().orElse(true);
+
+        if(!showConsentMenu) {
+            this.handleLink(member, code, event.getHook());
+            return;
+        }
+
+        this.postGdprAction.put(memberId, () -> this.handleLink(member, code, event.getHook()));
+
+        event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                new EmbedBuilder()
+                        .setTitle("You & Your Data!")
+                        .setDescription(
+                        """
+                            By running this command & clicking 'Agree' below, you're agreeing to the following:
+                                
+                            - Your Discord Id & your Minecraft Account Id being stored.
+                            - The Discord Guild that this command was run in being stored.
+                        """)
+                        .setFooter("/link")
+                        .setColor(new Color(200, 200, 200))
+                        .build()
+        )).setActionRow(
+                Button.success("agree", "Agree"),
+                Button.secondary("cancel", "Cancel")
+        ).queue();
+    }
+
+
+    public void handleUnlinkAllCommand(SlashCommandInteractionEvent event) {
+        event.getHook().setEphemeral(true);
+        event.deferReply(true).queue();
+
+        DBLinks.deleteAllLinksFor(event.getUser().getId()).whenComplete((ret, err) -> {
+
+            if(err != null) {
+                err.printStackTrace();
+                event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                        this.generateGenericErrorEmbed("U001"))
+                ).queue();
+                return;
+            }
+
+            event.getHook().editOriginal(MessageEditData.fromEmbeds(
+                    new EmbedBuilder()
+                            .setTitle("Completed!")
+                            .setDescription("Unlinked all Minecraft accounts associated with your Discord account.")
+                            .setFooter("/unlinkall")
+                            .setColor(new Color(150, 45, 170))
+                            .build()
+            )).queue();
+        });
+    }
+
+
+    private void handleLink(Member member, String code, InteractionHook hook) {
 
         if(member == null) {
-            event.getHook().editOriginal(MessageEditData.fromEmbeds(
+            hook.editOriginal(MessageEditData.fromEmbeds(
                     this.generateGenericErrorEmbed("D001")
             )).queue();
             return;
         }
 
         if(!this.canUserLink(member)) {
-            event.getHook().editOriginal(MessageEditData.fromEmbeds(
+            hook.editOriginal(MessageEditData.fromEmbeds(
                     new EmbedBuilder()
                             .setTitle("Uh Oh!")
                             .setDescription(this.missingLinkPermsMessage)
@@ -110,10 +204,9 @@ public class ServerAdapter extends ListenerAdapter {
         }
 
         String userId = member.getId();
-        String code = event.getOption("code", "", OptionMapping::getAsString);
 
         if(code.trim().isEmpty()) {
-            event.getHook().editOriginal(MessageEditData.fromEmbeds(
+            hook.editOriginal(MessageEditData.fromEmbeds(
                     new EmbedBuilder()
                             .setTitle("Uh Oh!")
                             .setDescription("You didn't enter a valid code. Please try again.")
@@ -161,33 +254,7 @@ public class ServerAdapter extends ListenerAdapter {
                         .build();
             };
 
-            event.getHook().editOriginal(MessageEditData.fromEmbeds(response)).queue();
-        });
-    }
-
-
-    public void handleUnlinkAllCommand(SlashCommandInteractionEvent event) {
-        event.getHook().setEphemeral(true);
-        event.deferReply(true).queue();
-
-        DBLinks.deleteAllLinksFor(event.getUser().getId()).whenComplete((ret, err) -> {
-
-            if(err != null) {
-                err.printStackTrace();
-                event.getHook().editOriginal(MessageEditData.fromEmbeds(
-                        this.generateGenericErrorEmbed("U001"))
-                ).queue();
-                return;
-            }
-
-            event.getHook().editOriginal(MessageEditData.fromEmbeds(
-                    new EmbedBuilder()
-                            .setTitle("Completed!")
-                            .setDescription("Unlinked all Minecraft accounts associated with your Discord account.")
-                            .setFooter("/unlinkall")
-                            .setColor(new Color(150, 45, 170))
-                            .build()
-            )).queue();
+            hook.editOriginal(MessageEditData.fromEmbeds(response)).queue();
         });
     }
 
@@ -205,4 +272,28 @@ public class ServerAdapter extends ListenerAdapter {
     public long getGuildId() {
         return this.guildId;
     }
+
+    public boolean canUserLink(Member member) {
+        if(this.memberRoleId == null)
+            return true;
+
+        Role role = Dislink.discord().getBot().getRoleById(this.memberRoleId);
+        return member.getRoles().contains(role);
+    }
+
+    public boolean isUserAdmin(Member member) {
+        if(this.adminRoleId == null)
+            return false;
+
+        Role role = Dislink.discord().getBot().getRoleById(this.adminRoleId);
+        return member.getRoles().contains(role);
+    }
+
+    private boolean shouldIgnore(Guild guild) {
+        if(guild == null)
+            return true;
+
+        return guild.getIdLong() != this.guildId;
+    }
+
 }

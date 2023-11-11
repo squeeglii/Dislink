@@ -146,6 +146,18 @@ public class DBLinks {
     }
 
 
+    public static CompletableFuture<Void> deleteUser(String discordId) {
+        CompletableFuture<Void> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+        });
+
+        return output;
+    }
+
+
     public static CompletableFuture<Void> deleteAllLinksFor(String discordId) {
         CompletableFuture<Void> output = new CompletableFuture<>();
 
