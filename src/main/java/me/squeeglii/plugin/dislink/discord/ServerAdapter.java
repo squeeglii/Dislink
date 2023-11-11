@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class ServerAdapter extends ListenerAdapter {
 
@@ -32,7 +33,7 @@ public class ServerAdapter extends ListenerAdapter {
 
     private final String missingLinkPermsMessage;
 
-    private final HashMap<String, Runnable> postGdprAction;
+    private final HashMap<String, Consumer<InteractionHook>> postGdprAction;
 
     public ServerAdapter(long guildId, String shortName, Long memberId, Long adminId, String missingPermsMessage) {
         this.guildId = guildId;
@@ -69,6 +70,10 @@ public class ServerAdapter extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if(this.shouldIgnore(event.getGuild()))
+            return;
+
+        event.getHook().setEphemeral(true);
         event.deferEdit().setComponents().queue();
 
         // Admittedly, this is quite a bad way to implement this as it means the only buttons
@@ -80,7 +85,7 @@ public class ServerAdapter extends ListenerAdapter {
         switch (event.getButton().getLabel().trim().toLowerCase()) {
 
             case "agree" -> {
-                Runnable action = this.postGdprAction.remove(userId);
+                Consumer<InteractionHook> action = this.postGdprAction.remove(userId);
 
                 if(action == null) {
                     event.getHook().editOriginal(MessageEditData.fromEmbeds(
@@ -89,7 +94,7 @@ public class ServerAdapter extends ListenerAdapter {
                     return;
                 }
 
-                action.run();
+                action.accept(event.getHook());
             }
 
             case "cancel" -> {
@@ -134,7 +139,7 @@ public class ServerAdapter extends ListenerAdapter {
             return;
         }
 
-        this.postGdprAction.put(memberId, () -> this.handleLink(member, code, event.getHook()));
+        this.postGdprAction.put(memberId, (hook) -> this.handleLink(member, code, hook));
 
         event.getHook().editOriginal(MessageEditData.fromEmbeds(
                 new EmbedBuilder()
@@ -144,7 +149,9 @@ public class ServerAdapter extends ListenerAdapter {
                             By running this command & clicking 'Agree' below, you're agreeing to the following:
                                 
                             - Your Discord Id & your Minecraft Account Id being stored.
+                            
                             - The Discord Guild that this command was run in being stored.
+                            
                         """)
                         .setFooter("/link")
                         .setColor(new Color(200, 200, 200))
