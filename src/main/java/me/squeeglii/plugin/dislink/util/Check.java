@@ -4,6 +4,17 @@ import me.squeeglii.plugin.dislink.exception.MissingPropertyException;
 
 public final class Check {
 
+    /**
+     * Used to double-triple-check that a user-inputted code is safe to
+     * be passed into SQL. It should still be added to statements in
+     * safety-conscious ways, but this is another layer of security.
+     * @param code the code to check
+     * @return true if the code contains non [ A-Z and hyphen ] characters.
+     */
+    public static boolean isPairCodeUnsafe(String code) {
+        return !code.matches("^[a-z-]*$");
+    }
+
 
     /**
      * For use in json, config, and Data API

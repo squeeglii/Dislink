@@ -5,6 +5,7 @@ import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
 import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.util.Check;
 import me.squeeglii.plugin.dislink.util.Generate;
 import me.squeeglii.plugin.dislink.util.Run;
 
@@ -107,6 +108,11 @@ public class DBPendingLinks {
      */
     public static CompletableFuture<LinkResult> tryCompleteLink(String discordId, String pairCode, String verifier) {
         CompletableFuture<LinkResult> output = new CompletableFuture<>();
+
+        if(Check.isPairCodeUnsafe(pairCode)) {
+            output.complete(LinkResult.INVALID_CODE);
+            return output;
+        }
 
         Run.async(() -> {
             int currentAccountCount = DBLinks.getExistingAccountQuantityFor(discordId).join();

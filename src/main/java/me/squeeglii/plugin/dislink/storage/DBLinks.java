@@ -134,24 +134,11 @@ public class DBLinks {
 
             } catch (Exception err) {
                 output.completeExceptionally(err);
-                return;
 
             } finally {
                 DatabaseHelper.closeQuietly(statement);
                 DatabaseHelper.closeQuietly(connection);
             }
-        });
-
-        return output;
-    }
-
-
-    public static CompletableFuture<Void> deleteUser(String discordId) {
-        CompletableFuture<Void> output = new CompletableFuture<>();
-
-        Run.async(() -> {
-            ConnectionWrapper connection = null;
-            PreparedStatement statement = null;
         });
 
         return output;
