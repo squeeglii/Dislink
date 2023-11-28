@@ -133,6 +133,11 @@ public class PlayerLifecycleListener implements Listener {
                 ? "the %s%s%s%s%s discord server".formatted(ChatColor.AQUA, ChatColor.UNDERLINE, optServer.get(), ChatColor.RESET, ChatColor.DARK_AQUA)
                 : "the discord server";
 
+        Optional<String> optDiscordHint = Cfg.DISCORD_COMMAND_HINT.dislink();
+        String discordHint = optDiscordHint.isPresent()
+                ? "%s%s%s%s".formatted(ChatColor.RESET, ChatColor.GRAY, ChatColor.ITALIC, optDiscordHint.get())
+                : "";
+
         return """
                %s%s%sWhere are you from?
                
@@ -140,12 +145,15 @@ public class PlayerLifecycleListener implements Listener {
                %sPlease go to %s and run %s%s/link%s%s with the code:
 
                %s%s%s
+               
+               %s
                """
         .formatted(
                 ChatColor.AQUA, ChatColor.UNDERLINE, ChatColor.ITALIC,
                 ChatColor.DARK_AQUA,
                 ChatColor.DARK_AQUA, server, ChatColor.AQUA, ChatColor.UNDERLINE, ChatColor.RESET, ChatColor.DARK_AQUA,
-                ChatColor.LIGHT_PURPLE, ChatColor.UNDERLINE, code
+                ChatColor.LIGHT_PURPLE, ChatColor.UNDERLINE, code,
+                discordHint
         );
     }
 

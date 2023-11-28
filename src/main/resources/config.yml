@@ -41,6 +41,9 @@ link-server: Cardiff Gaming Society
 # When linking on the discord side, show a notice with how data will be used.
 show-gdpr-consent: true
 
+# Appends a short note to the end of the in-game linking menu. Useful for small clarifications.
+discord-link-hint: /link can be used in any channel of that server - It's only visible to you.
+
 
 
 ### -- Pairing Codes
