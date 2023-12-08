@@ -24,10 +24,15 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven {
+        name = "command-api"
+        url = "https://repo.codemc.org/repository/maven-public/"
+    }
 }
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${project.properties.spigot_distribution}"
+    implementation "dev.jorel:commandapi-bukkit-shade:9.2.0"
 
     implementation("net.dv8tion:JDA:5.0.0-beta.17") {
         exclude module: 'opus-java'
@@ -45,10 +50,13 @@ java {
     }
 }
 
-tasks.withType(JavaCompile).configureEach {
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release.set(targetJavaVersion);
+shadowJar {
+    dependencies {
+        exclude(dependency('com.mojang:brigadier'))
     }
+
+    // Shade in command api and avoid conflicts :)
+    relocate 'dev.jorel.commandapi', 'me.squeeglii.plugin.dislink.commandapi'
 }
 
 processResources {
@@ -60,6 +68,12 @@ processResources {
     }
 }
 
+
+tasks.withType(JavaCompile).configureEach {
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion);
+    }
+}
 
 
 static def formatAsBadgeSafe(var val) {

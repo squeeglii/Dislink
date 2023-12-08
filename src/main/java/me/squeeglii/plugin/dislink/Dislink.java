@@ -1,5 +1,10 @@
 package me.squeeglii.plugin.dislink;
 
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import dev.jorel.commandapi.CommandAPIConfig;
+import me.squeeglii.plugin.dislink.command.ConfiguredCommand;
+import me.squeeglii.plugin.dislink.command.WhoIsCommand;
 import me.squeeglii.plugin.dislink.discord.DiscordManager;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
@@ -11,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 public final class Dislink extends JavaPlugin {
@@ -18,11 +25,25 @@ public final class Dislink extends JavaPlugin {
     private static Dislink instance = null;
     private static DiscordManager discordInstance = null;
 
+    private final List<ConfiguredCommand> commands = new LinkedList<>();
+
     private Run threadWatcher;
     private LinkedAccountCache linkedAccountCache;
 
     private DatabaseAccess databaseCredentials;
 
+
+    @Override
+    public void onLoad() {
+        instance = this;
+
+        this.saveDefaultConfig();
+
+        CommandAPIConfig<?> cmdApiCfg = new CommandAPIBukkitConfig(this);
+        CommandAPI.onLoad(cmdApiCfg);
+
+        this.registerCommand(new WhoIsCommand());
+    }
 
     @Override
     public void onEnable() {
@@ -85,6 +106,11 @@ public final class Dislink extends JavaPlugin {
     private Dislink event(Listener listener) {
         this.getServer().getPluginManager().registerEvents(listener, this);
         return this;
+    }
+
+    private void registerCommand(ConfiguredCommand command) {
+        this.commands.add(command);
+        command.buildCommand().register();
     }
 
 
