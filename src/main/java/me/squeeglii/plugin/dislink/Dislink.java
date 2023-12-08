@@ -62,6 +62,7 @@ public final class Dislink extends JavaPlugin {
 
 
         try {
+            CommandAPI.onEnable();
             this.initDiscord();
             this.postInitTasks();
 
@@ -74,6 +75,11 @@ public final class Dislink extends JavaPlugin {
     public void onDisable() {
         if(instance == this)
             instance = null;
+
+        for(ConfiguredCommand command: this.commands)
+            CommandAPI.unregister(command.getId());
+
+        this.commands.clear();
     }
 
 
