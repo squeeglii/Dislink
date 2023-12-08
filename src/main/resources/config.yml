@@ -36,7 +36,7 @@ paired-account-limit: 2
 prune-pending-links-on-restart: true
 
 # Used in link message - helps signpost people to the right place to /link.
-link-server: Cardiff Gaming Society
+link-location: the Discord server
 
 # When linking on the discord side, show a notice with how data will be used.
 show-gdpr-consent: true

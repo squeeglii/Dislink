@@ -128,9 +128,9 @@ public class PlayerLifecycleListener implements Listener {
     }
 
     private static String codeMessage(String code) {
-        Optional<String> optServer = Cfg.LINK_SERVER.dislink();
+        Optional<String> optServer = Cfg.LINK_LOCATION.dislink();
         String server = optServer.isPresent()
-                ? "the %s%s%s%s%s discord server".formatted(ChatColor.AQUA, ChatColor.UNDERLINE, optServer.get(), ChatColor.RESET, ChatColor.DARK_AQUA)
+                ? "%s%s%s%s%s".formatted(ChatColor.AQUA, ChatColor.UNDERLINE, optServer.get(), ChatColor.RESET, ChatColor.DARK_AQUA)
                 : "the discord server";
 
         Optional<String> optDiscordHint = Cfg.DISCORD_COMMAND_HINT.dislink();
