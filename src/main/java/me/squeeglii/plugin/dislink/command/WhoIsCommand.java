@@ -72,6 +72,8 @@ public class WhoIsCommand extends ConfiguredCommand {
                             .formatStringValue(messageBuilder, "Discord Id", profile.discordId())
                             .formatStringValue(messageBuilder, "Minecraft Id", profile.minecraftId().toString())
                             .formatBooleanValue(messageBuilder, "Has Whitelist Bypass", profile.isGuest());
+
+                        executor.sendMessage(messageBuilder.toString());
                     });
 
                 });
