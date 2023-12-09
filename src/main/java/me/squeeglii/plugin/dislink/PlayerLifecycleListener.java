@@ -105,10 +105,6 @@ public class PlayerLifecycleListener implements Listener {
 
     private boolean hasWhitelistBypass(UUID uuid) {
         Server server = Dislink.plugin().getServer();
-
-        if(!server.hasWhitelist())
-            return false;
-
         OfflinePlayer player = server.getOfflinePlayer(uuid);
 
         return server.getWhitelistedPlayers().contains(player);

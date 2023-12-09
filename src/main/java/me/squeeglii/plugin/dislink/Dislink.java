@@ -52,6 +52,7 @@ public final class Dislink extends JavaPlugin {
     public void onEnable() {
         instance = this;
         this.threadWatcher = new Run();
+        this.verifierPrefixes = new VerifierPrefixes();
         this.linkedAccountCache = new LinkedAccountCache();
 
         // Must be called before loading DB config
