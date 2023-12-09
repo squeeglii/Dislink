@@ -24,6 +24,16 @@ server-configs:
     missing-member-role-message: # Allows you to do a cheeky ad for memberships.
 
 
+### -- In-Game configuration
+### Optional to fill in but good for presentation
+
+# Set custom prefixes depending on where people verified from.
+# Remove section if you don't want prefixes.
+short-name-prefixes:
+  gaming: "&#e973eb&lGAM"
+  whitelist: "&7*"
+  operator: "&4*"
+
 
 ### -- General Pairing Configuration
 ### Configures the more general parts of account linking.
@@ -43,7 +53,6 @@ show-gdpr-consent: true
 
 # Appends a short note to the end of the in-game linking menu. Useful for small clarifications.
 discord-link-hint: /link can be used in any channel of that server - It's only visible to you.
-
 
 
 ### -- Pairing Codes

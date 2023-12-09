@@ -6,6 +6,7 @@ import dev.jorel.commandapi.CommandAPIConfig;
 import me.squeeglii.plugin.dislink.command.ConfiguredCommand;
 import me.squeeglii.plugin.dislink.command.WhoIsCommand;
 import me.squeeglii.plugin.dislink.discord.DiscordManager;
+import me.squeeglii.plugin.dislink.display.VerifierPrefixes;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
@@ -13,6 +14,7 @@ import me.squeeglii.plugin.dislink.storage.helper.DatabaseAccess;
 import me.squeeglii.plugin.dislink.util.Cfg;
 import me.squeeglii.plugin.dislink.util.Run;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -29,6 +31,7 @@ public final class Dislink extends JavaPlugin {
 
     private Run threadWatcher;
     private LinkedAccountCache linkedAccountCache;
+    private VerifierPrefixes verifierPrefixes;
 
     private DatabaseAccess databaseCredentials;
 
@@ -60,7 +63,6 @@ public final class Dislink extends JavaPlugin {
         this.event(new PlayerLifecycleListener())
             .event(this.linkedAccountCache);
 
-
         try {
             CommandAPI.onEnable();
             this.initDiscord();
@@ -80,6 +82,7 @@ public final class Dislink extends JavaPlugin {
             CommandAPI.unregister(command.getId());
 
         this.commands.clear();
+        this.getServer().getServicesManager().unregisterAll(this);
     }
 
 
@@ -106,11 +109,21 @@ public final class Dislink extends JavaPlugin {
                 this.getLogger().info("Cleared existing pending account links. Codes must be regenerated.");
             });
         }
+
+        this.service(LinkedAccountCache.class, this.linkedAccountCache)
+            .service(VerifierPrefixes.class, this.verifierPrefixes);
+
+        this.verifierPrefixes.loadDefaults();
     }
 
 
     private Dislink event(Listener listener) {
         this.getServer().getPluginManager().registerEvents(listener, this);
+        return this;
+    }
+
+    private <T> Dislink service(Class<T> serviceClass, T impl) {
+        this.getServer().getServicesManager().register(serviceClass, impl, this, ServicePriority.Normal);
         return this;
     }
 

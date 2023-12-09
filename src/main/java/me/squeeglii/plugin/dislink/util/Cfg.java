@@ -20,6 +20,8 @@ public class Cfg {
     public static final LongGetter DISCORD_ADMIN_ROLE_ID = new LongGetter("admin-role-id");
     public static final StringGetter DISCORD_MISSING_PERMS_MESSAGE = new StringGetter("missing-member-role-message");
 
+    // In-Game Config
+    public static final SectionGetter VERIFIER_SHORT_NAME_PREFIXES = new SectionGetter("short-name-prefixes");
 
     // General Pairing
     public static final IntGetter MAX_ACCOUNT_LIMIT = new IntGetter("paired-account-limit");
