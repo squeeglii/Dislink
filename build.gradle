@@ -32,7 +32,7 @@ repositories {
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${project.properties.spigot_distribution}"
-    implementation "dev.jorel:commandapi-bukkit-shade:9.2.0"
+    implementation "dev.jorel:commandapi-bukkit-shade:${project.properties.command_api_version}"
 
     implementation("net.dv8tion:JDA:5.0.0-beta.17") {
         exclude module: 'opus-java'
