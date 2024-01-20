@@ -18,6 +18,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DBLinks {
 
+    private static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ? (platform_id VARCHAR(36) PRIMARY KEY, discord_id VARCHAR(24), validator VARCHAR(20));";
+
     private static final String SQL_DELETE_ALL_FOR_DISCORD = "DELETE FROM ? WHERE discord_id=?;";
 
     private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM ? WHERE discord_id=?;";

@@ -1,6 +1,6 @@
 package me.squeeglii.plugin.dislink.storage.helper;
 
-import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.config.Cfg;
 
 import java.sql.SQLException;
 import java.sql.Statement;

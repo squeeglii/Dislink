@@ -1,6 +1,7 @@
 package me.squeeglii.plugin.dislink.util;
 
 import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.config.Cfg;
 
 import java.security.SecureRandom;
 import java.util.List;

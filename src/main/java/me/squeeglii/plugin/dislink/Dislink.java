@@ -5,13 +5,14 @@ import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import dev.jorel.commandapi.CommandAPIConfig;
 import me.squeeglii.plugin.dislink.command.ConfiguredCommand;
 import me.squeeglii.plugin.dislink.command.WhoIsCommand;
+import me.squeeglii.plugin.dislink.config.ConfigChecks;
 import me.squeeglii.plugin.dislink.discord.DiscordManager;
 import me.squeeglii.plugin.dislink.display.VerifierPrefixes;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseAccess;
-import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.config.Cfg;
 import me.squeeglii.plugin.dislink.util.Run;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
@@ -58,6 +59,11 @@ public final class Dislink extends JavaPlugin {
         // Must be called before loading DB config
         // as it adds the necessary fields.
         this.saveDefaultConfig();
+
+        if(!ConfigChecks.runAll()) {
+            this.getLogger().severe("Failed the required config checks necessary for plugin to operate. Please review the logs and fix these.");
+            this.getPluginLoader().disablePlugin(this);
+        }
 
         this.databaseCredentials = DatabaseAccess.fromConfig();
 

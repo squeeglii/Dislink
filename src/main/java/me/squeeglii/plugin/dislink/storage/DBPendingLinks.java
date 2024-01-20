@@ -4,7 +4,7 @@ import me.squeeglii.plugin.dislink.Dislink;
 import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
-import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.config.Cfg;
 import me.squeeglii.plugin.dislink.util.Check;
 import me.squeeglii.plugin.dislink.util.Generate;
 import me.squeeglii.plugin.dislink.util.Run;
@@ -22,6 +22,10 @@ import java.util.concurrent.CompletableFuture;
  * Handles generating link codes + verifying that they're correct.
  */
 public class DBPendingLinks {
+
+    public static final int LINK_CODE_SIZE_LIMIT = 128; // If you modify the table, update this too.
+
+    private static final String SQL_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ? (link_code VARCHAR(128) PRIMARY KEY, platform_id VARCHAR(36));";
 
     public static final String SQL_CLEAR_ALL = "TRUNCATE TABLE ?;";
 
@@ -229,6 +233,17 @@ public class DBPendingLinks {
     private static Optional<String> attemptAndCheckCodeGeneration(ConnectionWrapper conn, List<PreparedStatement> statementPool) throws SQLException {
         String newCode = Generate.newLinkCode();
         String tableName = DBPendingLinks.getPendingLinkTable();
+
+        if(newCode.isEmpty()) {
+            Dislink.plugin().getLogger().severe("Generated an empty link code! Plugin is misconfigured.");
+            return Optional.empty();
+        }
+
+        if(newCode.length() > DBPendingLinks.LINK_CODE_SIZE_LIMIT) {
+            Dislink.plugin().getLogger().severe("Generated a link code that is too big! " +
+                    "Please update the config with shorter words or less link code blocks.");
+            return Optional.empty();
+        }
 
         PreparedStatement statement = conn.prepareStatement(SQL_CHECK_NO_DUPES, tableName, newCode);
         statementPool.add(statement);

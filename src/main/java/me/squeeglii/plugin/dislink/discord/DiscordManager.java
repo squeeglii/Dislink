@@ -1,7 +1,7 @@
 package me.squeeglii.plugin.dislink.discord;
 
 import me.squeeglii.plugin.dislink.Dislink;
-import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.config.Cfg;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;

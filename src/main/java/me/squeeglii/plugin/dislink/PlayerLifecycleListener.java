@@ -4,7 +4,7 @@ import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccount;
-import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.config.Cfg;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;

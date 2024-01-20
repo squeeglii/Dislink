@@ -1,4 +1,4 @@
-package me.squeeglii.plugin.dislink.util;
+package me.squeeglii.plugin.dislink.config;
 
 import me.squeeglii.plugin.dislink.data.*;
 
@@ -36,5 +36,10 @@ public class Cfg {
     public static final IntGetter PAIRING_GENERATION_ATTEMPTS = new IntGetter("paring-code-generation-attempts");
     public static final StringListGetter PAIRING_WORDS = new StringListGetter("pairing-word-list");
 
+
+    // Can only be called once Dislink has an instance assigned.
+    public static final void verifyConfig() {
+
+    }
 
 }

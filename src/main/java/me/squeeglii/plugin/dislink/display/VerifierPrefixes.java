@@ -1,7 +1,7 @@
 package me.squeeglii.plugin.dislink.display;
 
 import me.squeeglii.plugin.dislink.Dislink;
-import me.squeeglii.plugin.dislink.util.Cfg;
+import me.squeeglii.plugin.dislink.config.Cfg;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.HashMap;
