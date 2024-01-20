@@ -5,6 +5,7 @@ import me.squeeglii.plugin.dislink.data.*;
 public class Cfg {
 
     // Database Details
+    public static final StringGetter DB_PREFIX = new StringGetter("database-prefix");
     public static final StringGetter DB_ADDRESS = new StringGetter("database-address");
     public static final StringGetter DB_SCHEMA = new StringGetter("database-schema");
     public static final StringGetter DB_USERNAME = new StringGetter("database-username");

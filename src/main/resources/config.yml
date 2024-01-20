@@ -2,6 +2,10 @@
 ### -- Database Configuration
 ### A must-fill-in ! - What are the details for the database.
 
+# Optional! Recommended you don't change this, but you can change the table prefix here.
+database-prefix: 'dislink_'
+
+# Login details here
 database-address:
 database-schema:
 database-username:

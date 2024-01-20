@@ -18,13 +18,13 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DBLinks {
 
-    private static final String SQL_DELETE_ALL_FOR_DISCORD = "DELETE FROM UserLinks WHERE discord_id=?;";
+    private static final String SQL_DELETE_ALL_FOR_DISCORD = "DELETE FROM ? WHERE discord_id=?;";
 
-    private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM UserLinks WHERE discord_id=?;";
+    private static final String SQL_GET_PAIRED_ACCOUNT_QUANTITY = "SELECT COUNT(*) FROM ? WHERE discord_id=?;";
 
-    private static final String SQL_GET_PAIRING = "SELECT discord_id, validator FROM UserLinks WHERE platform_id=?;";
+    private static final String SQL_GET_PAIRING = "SELECT discord_id, validator FROM ? WHERE platform_id=?;";
 
-    public static final String SQL_FORM_LINK = "INSERT INTO UserLinks (discord_id, platform_id, validator) VALUES (?, ?, ?);";
+    public static final String SQL_FORM_LINK = "INSERT INTO ? (discord_id, platform_id, validator) VALUES (?, ?, ?);";
 
     /**
      * Checks how many accounts are already linked to a single discord account.
@@ -39,8 +39,9 @@ public class DBLinks {
             PreparedStatement statement = null;
 
             try {
+                String tableName = DBLinks.getEstablishedLinksTable();
                 connection = Dislink.plugin().getDbConnection();
-                statement = connection.prepareStatement(SQL_GET_PAIRED_ACCOUNT_QUANTITY, discordId);
+                statement = connection.prepareStatement(SQL_GET_PAIRED_ACCOUNT_QUANTITY, tableName, discordId);
 
                 ResultSet result = statement.executeQuery();
 
@@ -81,8 +82,9 @@ public class DBLinks {
             PreparedStatement statement = null;
 
             try {
+                String tableName = DBLinks.getEstablishedLinksTable();
                 connection = Dislink.plugin().getDbConnection();
-                statement = connection.prepareStatement(SQL_GET_PAIRING, platformIdStr);
+                statement = connection.prepareStatement(SQL_GET_PAIRING, tableName, platformIdStr);
 
                 ResultSet results = statement.executeQuery();
 
@@ -125,9 +127,10 @@ public class DBLinks {
             PreparedStatement statement = null;
 
             try {
+                String tableName = DBLinks.getEstablishedLinksTable();
                 connection = Dislink.plugin().getDbConnection();
 
-                statement = connection.prepareStatement(SQL_FORM_LINK, discordId, platformId, verifier);
+                statement = connection.prepareStatement(SQL_FORM_LINK, tableName, discordId, platformId, verifier);
                 statement.execute();
 
                 output.complete(null);
@@ -153,9 +156,10 @@ public class DBLinks {
             PreparedStatement statement = null;
 
             try {
+                String tableName = DBLinks.getEstablishedLinksTable();
                 connection = Dislink.plugin().getDbConnection();
 
-                statement = connection.prepareStatement(SQL_DELETE_ALL_FOR_DISCORD, discordId);
+                statement = connection.prepareStatement(SQL_DELETE_ALL_FOR_DISCORD, tableName, discordId);
                 statement.execute();
 
                 output.complete(null);
@@ -170,6 +174,11 @@ public class DBLinks {
         });
 
         return output;
+    }
+
+
+    public static String getEstablishedLinksTable() {
+        return DatabaseHelper.getFullTableName("UserLinks");
     }
 
 }

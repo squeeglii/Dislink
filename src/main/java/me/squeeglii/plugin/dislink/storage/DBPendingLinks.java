@@ -23,17 +23,17 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DBPendingLinks {
 
-    public static final String SQL_CLEAR_ALL = "TRUNCATE TABLE PendingLinks;";
+    public static final String SQL_CLEAR_ALL = "TRUNCATE TABLE ?;";
 
-    public static final String SQL_CREATE_PENDING_LINK = "INSERT INTO PendingLinks (platform_id, link_code) VALUES (?, ?);";
+    public static final String SQL_CREATE_PENDING_LINK = "INSERT INTO ? (platform_id, link_code) VALUES (?, ?);";
 
-    public static final String SQL_CHECK_NO_DUPES = "SELECT COUNT(*) FROM PendingLinks WHERE link_code=?;";
+    public static final String SQL_CHECK_NO_DUPES = "SELECT COUNT(*) FROM ? WHERE link_code=?;";
 
-    public static final String SQL_GET_EXISTING_LINKS = "SELECT link_code FROM PendingLinks WHERE platform_id=?;";
+    public static final String SQL_GET_EXISTING_LINKS = "SELECT link_code FROM ? WHERE platform_id=?;";
 
-    public static final String SQL_GET_LINK_BY_CODE = "SELECT platform_id FROM PendingLinks WHERE link_code=?;";
+    public static final String SQL_GET_LINK_BY_CODE = "SELECT platform_id FROM ? WHERE link_code=?;";
 
-    public static final String SQL_CLEAR_PENDING_LINKS = "DELETE FROM PendingLinks WHERE platform_id=?;";
+    public static final String SQL_CLEAR_PENDING_LINKS = "DELETE FROM ? WHERE platform_id=?;";
 
 
     /**
@@ -76,7 +76,9 @@ public class DBPendingLinks {
 
                     String id = platformId.toString();
                     String code = codeGenerated.get();
-                    PreparedStatement submitStatement = connection.prepareStatement(SQL_CREATE_PENDING_LINK, id, code);
+                    String tableName = DBPendingLinks.getPendingLinkTable();
+
+                    PreparedStatement submitStatement = connection.prepareStatement(SQL_CREATE_PENDING_LINK, tableName, id, code);
                     statements.add(submitStatement);
                     submitStatement.execute();
 
@@ -131,7 +133,9 @@ public class DBPendingLinks {
             try {
                 conn = Dislink.plugin().getDbConnection();
                 conn.batch(connection -> {
-                    PreparedStatement getPlatformId = connection.prepareStatement(SQL_GET_LINK_BY_CODE, pairCode.trim().toLowerCase());
+                    String pendingLinkTable = DBPendingLinks.getPendingLinkTable();
+                    String establishedLinkTable = DBLinks.getEstablishedLinksTable();
+                    PreparedStatement getPlatformId = connection.prepareStatement(SQL_GET_LINK_BY_CODE, pendingLinkTable, pairCode.trim().toLowerCase());
                     statements.add(getPlatformId);
 
                     ResultSet result = getPlatformId.executeQuery();
@@ -143,11 +147,11 @@ public class DBPendingLinks {
 
                     String platformId = result.getString(1);
 
-                    PreparedStatement finaliseLink = connection.prepareStatement(DBLinks.SQL_FORM_LINK, discordId, platformId, verifier);
+                    PreparedStatement finaliseLink = connection.prepareStatement(DBLinks.SQL_FORM_LINK, establishedLinkTable, discordId, platformId, verifier);
                     statements.add(finaliseLink);
                     finaliseLink.execute();
 
-                    PreparedStatement cleanUpLink = connection.prepareStatement(SQL_CLEAR_PENDING_LINKS, platformId);
+                    PreparedStatement cleanUpLink = connection.prepareStatement(SQL_CLEAR_PENDING_LINKS, pendingLinkTable, platformId);
                     statements.add(cleanUpLink);
                     cleanUpLink.execute();
 
@@ -183,8 +187,9 @@ public class DBPendingLinks {
             PreparedStatement statement = null;
 
             try {
+                String tableName = DBPendingLinks.getPendingLinkTable();
                 connection = Dislink.plugin().getDbConnection();
-                statement = connection.prepareStatement(SQL_CLEAR_ALL);
+                statement = connection.prepareStatement(SQL_CLEAR_ALL, tableName);
 
                 statement.execute();
 
@@ -206,8 +211,9 @@ public class DBPendingLinks {
 
     private static Optional<String> getExistingLink(ConnectionWrapper conn, List<PreparedStatement> statementPool, UUID accountId) throws SQLException {
         String accountIdStr = accountId.toString();
+        String tableName = DBPendingLinks.getPendingLinkTable();
 
-        PreparedStatement statement = conn.prepareStatement(SQL_GET_EXISTING_LINKS, accountIdStr);
+        PreparedStatement statement = conn.prepareStatement(SQL_GET_EXISTING_LINKS, tableName, accountIdStr);
         statementPool.add(statement);
 
         ResultSet results = statement.executeQuery();
@@ -222,8 +228,9 @@ public class DBPendingLinks {
 
     private static Optional<String> attemptAndCheckCodeGeneration(ConnectionWrapper conn, List<PreparedStatement> statementPool) throws SQLException {
         String newCode = Generate.newLinkCode();
+        String tableName = DBPendingLinks.getPendingLinkTable();
 
-        PreparedStatement statement = conn.prepareStatement(SQL_CHECK_NO_DUPES, newCode);
+        PreparedStatement statement = conn.prepareStatement(SQL_CHECK_NO_DUPES, tableName, newCode);
         statementPool.add(statement);
 
         ResultSet results = statement.executeQuery();
@@ -239,6 +246,11 @@ public class DBPendingLinks {
         return dupeCount == 0
                 ? Optional.of(newCode)
                 : Optional.empty();
+    }
+
+
+    private static String getPendingLinkTable() {
+        return DatabaseHelper.getFullTableName("PendingLinks");
     }
 
 }
