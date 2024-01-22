@@ -93,13 +93,12 @@ public class DiscordManager {
 
         String shortName = Cfg.DISCORD_SHORT_NAME.from(guildSection).orElse("somewhere");
         Long memberRole = Cfg.DISCORD_MEMBER_ROLE_ID.from(guildSection).orElse(null);
-        Long adminRole = Cfg.DISCORD_ADMIN_ROLE_ID.from(guildSection).orElse(null);
         String missingPermsMsg = Cfg.DISCORD_MISSING_PERMS_MESSAGE
                 .from(guildSection)
                 .orElse(ServerAdapter.DEFAULT_NO_LINK_PERMS_NOTICE);
 
         try {
-            ServerAdapter adapter = new ServerAdapter(longGuildId, shortName, memberRole, adminRole, missingPermsMsg);
+            ServerAdapter adapter = new ServerAdapter(longGuildId, shortName, memberRole, missingPermsMsg);
             return Optional.of(adapter);
 
         } catch (Exception err) {

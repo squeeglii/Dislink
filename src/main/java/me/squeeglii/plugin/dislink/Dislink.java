@@ -8,6 +8,7 @@ import me.squeeglii.plugin.dislink.command.WhoIsCommand;
 import me.squeeglii.plugin.dislink.config.ConfigChecks;
 import me.squeeglii.plugin.dislink.discord.DiscordManager;
 import me.squeeglii.plugin.dislink.display.VerifierPrefixes;
+import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
 import me.squeeglii.plugin.dislink.storage.LinkedAccountCache;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
@@ -22,6 +23,8 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 
 public final class Dislink extends JavaPlugin {
 
@@ -63,9 +66,25 @@ public final class Dislink extends JavaPlugin {
         if(!ConfigChecks.runAll()) {
             this.getLogger().severe("Failed the required config checks necessary for plugin to operate. Please review the logs and fix these.");
             this.getPluginLoader().disablePlugin(this);
+            return;
         }
 
-        this.databaseCredentials = DatabaseAccess.fromConfig();
+        try {
+            this.databaseCredentials = DatabaseAccess.fromConfig();
+
+            DBLinks.createTables().get();
+            DBPendingLinks.createTables().get();
+
+        } catch (CancellationException | InterruptedException err) {
+            this.getLogger().severe("Database validation was terminated too early! Aborting.");
+            this.getPluginLoader().disablePlugin(this);
+            return;
+
+        } catch (IllegalStateException | ExecutionException err) {
+            this.getLogger().severe("Error while validating the database: %s".formatted(err.getMessage()));
+            this.getPluginLoader().disablePlugin(this);
+            return;
+        }
 
         this.event(new PlayerLifecycleListener())
             .event(this.linkedAccountCache);
@@ -77,6 +96,7 @@ public final class Dislink extends JavaPlugin {
 
         } catch (Exception err) {
             this.getLogger().throwing("Dislink", "init", err);
+            this.getPluginLoader().disablePlugin(this);
         }
     }
 

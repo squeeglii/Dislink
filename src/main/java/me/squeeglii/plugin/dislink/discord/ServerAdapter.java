@@ -29,16 +29,14 @@ public class ServerAdapter extends ListenerAdapter {
 
     private final String shortName;
     private final Long memberRoleId;
-    private final Long adminRoleId;
 
     private final String missingLinkPermsMessage;
 
     private final HashMap<String, Consumer<InteractionHook>> postGdprAction;
 
-    public ServerAdapter(long guildId, String shortName, Long memberId, Long adminId, String missingPermsMessage) {
+    public ServerAdapter(long guildId, String shortName, Long memberId, String missingPermsMessage) {
         this.guildId = guildId;
         this.memberRoleId = memberId;
-        this.adminRoleId = adminId;
         this.shortName = shortName == null
                 ? "unknown"
                 : shortName;
@@ -285,14 +283,6 @@ public class ServerAdapter extends ListenerAdapter {
             return true;
 
         Role role = Dislink.discord().getBot().getRoleById(this.memberRoleId);
-        return member.getRoles().contains(role);
-    }
-
-    public boolean isUserAdmin(Member member) {
-        if(this.adminRoleId == null)
-            return false;
-
-        Role role = Dislink.discord().getBot().getRoleById(this.adminRoleId);
         return member.getRoles().contains(role);
     }
 

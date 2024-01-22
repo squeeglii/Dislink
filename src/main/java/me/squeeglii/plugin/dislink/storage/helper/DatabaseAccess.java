@@ -17,12 +17,12 @@ public record DatabaseAccess(String address, String schema, String username, Str
         Optional<String> password = Cfg.DB_PASSWORD.dislink();
 
         boolean anyInvalidDetails = addr.isEmpty() ||
-                schema.isEmpty() ||
-                username.isEmpty() ||
-                password.isEmpty();
+                                    schema.isEmpty() ||
+                                    username.isEmpty() ||
+                                    password.isEmpty();
 
         if (anyInvalidDetails)
-            throw new IllegalStateException("Database configuration is incomplete. Please check all fields are filled.");
+            throw new IllegalStateException("Database configuration is incomplete. Please check all fields are filled in the config.");
 
         return new DatabaseAccess(addr.get(), schema.get(), username.get(), password.get());
     }

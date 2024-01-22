@@ -40,6 +40,42 @@ public class DBPendingLinks {
     public static final String SQL_CLEAR_PENDING_LINKS = "DELETE FROM ? WHERE platform_id=?;";
 
 
+
+    /**
+     * Creates the tables necessary to run the link code
+     * generation system.
+     */
+    public static CompletableFuture<Void> createTables() {
+        CompletableFuture<Void> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+
+            try {
+                String tableName = DBLinks.getEstablishedLinksTable();
+                connection = Dislink.plugin().getDbConnection();
+                statement = connection.prepareStatement(SQL_CREATE_TABLE, tableName);
+
+                statement.execute();
+
+                output.complete(null);
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+                return;
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+
+            output.complete(null);
+        });
+
+        return output;
+    }
+
     /**
      * Asynchronously begins the linking process for a given Minecraft account.
      * @param platformId the id of the account (whatever is primarily used to identify it)

@@ -11,7 +11,34 @@ public class ConfigChecks {
      * @return Returns true if all checks have passed.
      */
     public static boolean runAll() {
+        return database() &&
+               bot() &&
+               inGame() &&
+               pairing();
+    }
+
+
+    public static boolean database() {
         return true;
     }
 
+    public static boolean bot() {
+        return true;
+    }
+
+    public static boolean inGame() {
+        return true;
+    }
+
+    public static boolean pairing() {
+        return pairingCodes() && pairingGeneral();
+    }
+
+    public static boolean pairingCodes() {
+        return true;
+    }
+
+    public static boolean pairingGeneral() {
+        return true;
+    }
 }

@@ -28,6 +28,42 @@ public class DBLinks {
 
     public static final String SQL_FORM_LINK = "INSERT INTO ? (discord_id, platform_id, validator) VALUES (?, ?, ?);";
 
+
+    /**
+     * Creates the tables necessary to run the linking whitelist for
+     * the project.
+     */
+    public static CompletableFuture<Void> createTables() {
+        CompletableFuture<Void> output = new CompletableFuture<>();
+
+        Run.async(() -> {
+            ConnectionWrapper connection = null;
+            PreparedStatement statement = null;
+
+            try {
+                String tableName = DBLinks.getEstablishedLinksTable();
+                connection = Dislink.plugin().getDbConnection();
+                statement = connection.prepareStatement(SQL_CREATE_TABLE, tableName);
+
+                statement.execute();
+
+                output.complete(null);
+
+            } catch (Exception err) {
+                output.completeExceptionally(err);
+                return;
+
+            } finally {
+                DatabaseHelper.closeQuietly(statement);
+                DatabaseHelper.closeQuietly(connection);
+            }
+
+            output.complete(null);
+        });
+
+        return output;
+    }
+
     /**
      * Checks how many accounts are already linked to a single discord account.
      * @param discordId the discord account id
