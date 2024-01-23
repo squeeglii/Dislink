@@ -1,6 +1,7 @@
 package me.squeeglii.plugin.dislink.storage;
 
 import me.squeeglii.plugin.dislink.Dislink;
+import me.squeeglii.plugin.dislink.config.Feature;
 import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.storage.helper.ConnectionWrapper;
 import me.squeeglii.plugin.dislink.storage.helper.DatabaseHelper;
@@ -39,7 +40,9 @@ public class DBPendingLinks {
 
     public static final String SQL_CLEAR_PENDING_LINKS = "DELETE FROM ? WHERE platform_id=?;";
 
-
+    // Errors for the config being invalid should only be logged once per reload
+    // as they end up being spam. This just tracks if an error has been logged on a given load.
+    private static int lastLoadWarned = -1;
 
     /**
      * Creates the tables necessary to run the link code
@@ -267,6 +270,19 @@ public class DBPendingLinks {
     }
 
     private static Optional<String> attemptAndCheckCodeGeneration(ConnectionWrapper conn, List<PreparedStatement> statementPool) throws SQLException {
+
+        if(Dislink.usingFeature(Feature.PAIR_CODE_GENERATION)) {
+
+            if(Dislink.getEnableCount() == lastLoadWarned)
+                return Optional.empty();
+
+            Dislink.plugin().getLogger().severe(
+                    "Link Code generation is disabled due to the config being invalid. Check logs and fix any issues."
+            );
+
+            return Optional.empty();
+        }
+
         String newCode = Generate.newLinkCode();
         String tableName = DBPendingLinks.getPendingLinkTable();
 

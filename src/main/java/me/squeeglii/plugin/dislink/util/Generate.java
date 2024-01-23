@@ -2,6 +2,7 @@ package me.squeeglii.plugin.dislink.util;
 
 import me.squeeglii.plugin.dislink.Dislink;
 import me.squeeglii.plugin.dislink.config.Cfg;
+import me.squeeglii.plugin.dislink.config.Feature;
 
 import java.security.SecureRandom;
 import java.util.List;
@@ -19,6 +20,11 @@ public class Generate {
     public static String newLinkCode() {
         if(Dislink.plugin() == null)
             throw new IllegalStateException("Tried to generate a new link code without Dislink being loaded.");
+
+        // This ideally shouldn't ever be reached
+        if(!Dislink.usingFeature(Feature.PAIR_CODE_GENERATION)) {
+            throw new IllegalStateException("Tried to generate a new link code without code generation being enabled (invalid config? see logs.)");
+        }
 
         Optional<List<String>> optPool = Cfg.PAIRING_WORDS.dislink();
 

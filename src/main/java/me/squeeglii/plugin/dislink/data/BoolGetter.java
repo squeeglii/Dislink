@@ -12,10 +12,10 @@ public class BoolGetter extends ConfigGetter<Boolean> {
 
     @Override
     public Optional<Boolean> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        boolean val = config.getBoolean(this.get());
+        boolean val = config.getBoolean(this.name());
 
         return Optional.of(val);
     }

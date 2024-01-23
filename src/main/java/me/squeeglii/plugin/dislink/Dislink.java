@@ -6,6 +6,7 @@ import dev.jorel.commandapi.CommandAPIConfig;
 import me.squeeglii.plugin.dislink.command.ConfiguredCommand;
 import me.squeeglii.plugin.dislink.command.WhoIsCommand;
 import me.squeeglii.plugin.dislink.config.ConfigChecks;
+import me.squeeglii.plugin.dislink.config.Feature;
 import me.squeeglii.plugin.dislink.discord.DiscordManager;
 import me.squeeglii.plugin.dislink.display.VerifierPrefixes;
 import me.squeeglii.plugin.dislink.storage.DBLinks;
@@ -20,24 +21,26 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 public final class Dislink extends JavaPlugin {
 
     private static Dislink instance = null;
+    private static int enableCount = 0;
     private static DiscordManager discordInstance = null;
 
     private final List<ConfiguredCommand> commands = new LinkedList<>();
+
+    private Set<Feature> lastEnabledFlags = new HashSet<>();
 
     private Run threadWatcher;
     private LinkedAccountCache linkedAccountCache;
     private VerifierPrefixes verifierPrefixes;
 
     private DatabaseAccess databaseCredentials;
+
 
 
     @Override
@@ -63,14 +66,21 @@ public final class Dislink extends JavaPlugin {
         // as it adds the necessary fields.
         this.saveDefaultConfig();
 
-        if(!ConfigChecks.runAll()) {
-            this.getLogger().severe("Failed the required config checks necessary for plugin to operate. Please review the logs and fix these.");
+        this.lastEnabledFlags = ConfigChecks.testForWorkingFeatures();
+
+        if(!this.lastEnabledFlags.contains(Feature.CORE)) {
+            this.getLogger().severe("Failed enough config checks to stop the plugin from working. Please review the log and fix any.");
             this.getPluginLoader().disablePlugin(this);
             return;
         }
 
         try {
-            this.databaseCredentials = DatabaseAccess.fromConfig();
+
+            // todo: here would be a good place to replace just storing the credentials, with
+            //       configuring a database interface w/ login included (aka, add local file storage support?)
+            if(this.lastEnabledFlags.contains(Feature.REMOTE_DATABASE)) {
+                this.databaseCredentials = DatabaseAccess.fromConfig();
+            }
 
             DBLinks.createTables().get();
             DBPendingLinks.createTables().get();
@@ -91,7 +101,7 @@ public final class Dislink extends JavaPlugin {
 
         try {
             CommandAPI.onEnable();
-            this.initDiscord();
+            this.requestDiscordInit();
             this.postInitTasks();
 
         } catch (Exception err) {
@@ -113,11 +123,20 @@ public final class Dislink extends JavaPlugin {
     }
 
 
-    public void initDiscord() {
+    public void requestDiscordInit() {
+
+        if(!this.lastEnabledFlags.contains(Feature.DISCORD_BOT)) {
+            this.getLogger().warning("Skipped enabling the discord bot as it's improperly configured. Check logs for errors.");
+            return;
+        }
+
+        this.getLogger().info("Launching the Discord Bot component.");
+
         discordInstance = new DiscordManager();
 
         Optional<String> optToken = Cfg.DISCORD_TOKEN.dislink();
 
+        // sanity check - can probably be removed.
         if(optToken.isEmpty()) {
             discordInstance = null;
             this.getLogger().warning("Missing bot token! Discord bot is disabled !");
@@ -125,6 +144,7 @@ public final class Dislink extends JavaPlugin {
         }
 
         Dislink.discord().start(optToken.get());
+        this.getLogger().info("Launched Discord Bot!");
     }
 
     private void postInitTasks() {
@@ -140,7 +160,7 @@ public final class Dislink extends JavaPlugin {
         this.service(LinkedAccountCache.class, this.linkedAccountCache)
             .service(VerifierPrefixes.class, this.verifierPrefixes);
 
-        this.verifierPrefixes.loadDefaults();
+        this.verifierPrefixes.loadFromConfig();
     }
 
 
@@ -176,6 +196,9 @@ public final class Dislink extends JavaPlugin {
         return ConnectionWrapper.fromAccess(this.databaseCredentials);
     }
 
+    public Set<Feature> getLastEnabledFlags() {
+        return this.lastEnabledFlags;
+    }
 
     public static Dislink plugin() {
         return instance;
@@ -183,5 +206,13 @@ public final class Dislink extends JavaPlugin {
 
     public static DiscordManager discord() {
         return discordInstance;
+    }
+
+    public static boolean usingFeature(Feature feature) {
+        return Dislink.plugin().lastEnabledFlags.contains(feature);
+    }
+
+    public static int getEnableCount() {
+        return enableCount;
     }
 }

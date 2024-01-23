@@ -18,13 +18,12 @@ public class Cfg {
     //// Sub-section of SERVER_CONFIGS
     public static final StringGetter DISCORD_SHORT_NAME = new StringGetter("short-name");
     public static final LongGetter DISCORD_MEMBER_ROLE_ID = new LongGetter("member-role-id");
-    public static final LongGetter DISCORD_ADMIN_ROLE_ID = new LongGetter("admin-role-id");
     public static final StringGetter DISCORD_MISSING_PERMS_MESSAGE = new StringGetter("missing-member-role-message");
 
     // In-Game Config
     public static final SectionGetter VERIFIER_SHORT_NAME_PREFIXES = new SectionGetter("short-name-prefixes");
 
-    // General Pairing
+    // General Pairing (Mostly Discord-side)
     public static final IntGetter MAX_ACCOUNT_LIMIT = new IntGetter("paired-account-limit");
     public static final BoolGetter PRUNE_PENDING_LINKS_ON_START = new BoolGetter("prune-pending-links-on-restart");
     public static final StringGetter LINK_LOCATION = new StringGetter("link-location");

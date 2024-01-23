@@ -12,10 +12,10 @@ public class SectionGetter extends ConfigGetter<ConfigurationSection> {
 
     @Override
     public Optional<ConfigurationSection> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        ConfigurationSection val = config.getConfigurationSection(this.get());
+        ConfigurationSection val = config.getConfigurationSection(this.name());
 
         if(val == null)
             return Optional.empty();

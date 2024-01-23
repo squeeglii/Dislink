@@ -13,10 +13,10 @@ public class StringListGetter extends ConfigGetter<List<String>> {
 
     @Override
     public Optional<List<String>> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        List<String> val = config.getStringList(this.get());
+        List<String> val = config.getStringList(this.name());
 
         return Optional.of(val);
     }

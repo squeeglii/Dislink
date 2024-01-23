@@ -2,6 +2,7 @@ package me.squeeglii.plugin.dislink.display;
 
 import me.squeeglii.plugin.dislink.Dislink;
 import me.squeeglii.plugin.dislink.config.Cfg;
+import me.squeeglii.plugin.dislink.config.Feature;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.HashMap;
@@ -35,7 +36,12 @@ public class VerifierPrefixes {
         this.prefixes.remove(linkVerifier.toLowerCase());
     }
 
-    public void loadDefaults() {
+    public void loadFromConfig() {
+        if(!Dislink.usingFeature(Feature.GAME_INTEGRATION)) {
+            Dislink.plugin().getLogger().warning("In-Game prefix support is disabled as the config is invalid.");
+            return;
+        }
+
         Optional<ConfigurationSection> optSection = Cfg.VERIFIER_SHORT_NAME_PREFIXES.dislink();
 
         if(optSection.isEmpty())

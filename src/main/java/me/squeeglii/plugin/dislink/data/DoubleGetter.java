@@ -12,10 +12,10 @@ public class DoubleGetter extends ConfigGetter<Double> {
 
     @Override
     public Optional<Double> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        double val = config.getDouble(this.get());
+        double val = config.getDouble(this.name());
 
         return Optional.of(val);
     }

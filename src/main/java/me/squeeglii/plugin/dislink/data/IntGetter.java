@@ -12,10 +12,10 @@ public class IntGetter extends ConfigGetter<Integer> {
 
     @Override
     public Optional<Integer> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        int val = config.getInt(this.get());
+        int val = config.getInt(this.name());
 
         return Optional.of(val);
     }

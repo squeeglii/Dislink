@@ -19,8 +19,8 @@ public class Key<T> {
         this.key = modifiedKey;
     }
 
-    public String get() {
-        return key;
+    public String name() {
+        return this.key;
     }
 
     @Override

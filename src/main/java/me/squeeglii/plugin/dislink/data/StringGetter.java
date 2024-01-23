@@ -12,10 +12,10 @@ public class StringGetter extends ConfigGetter<String> {
 
     @Override
     public Optional<String> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        String val = config.getString(this.get());
+        String val = config.getString(this.name());
 
         if(val == null || val.isEmpty())
             return Optional.empty();

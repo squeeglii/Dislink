@@ -12,10 +12,10 @@ public class LongGetter extends ConfigGetter<Long> {
 
     @Override
     public Optional<Long> from(ConfigurationSection config) {
-        if(!config.contains(this.get()))
+        if(!config.contains(this.name()))
             return Optional.empty();
 
-        long val = config.getLong(this.get());
+        long val = config.getLong(this.name());
 
         return Optional.of(val);
     }
