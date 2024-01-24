@@ -160,13 +160,17 @@ public class DBPendingLinks {
         }
 
         Run.async(() -> {
-            int currentAccountCount = DBLinks.getExistingAccountQuantityFor(discordId).join();
             int maxAccountCount = Cfg.MAX_ACCOUNT_LIMIT.dislink().orElse(2);
 
-            // Would adding another account exceed the limit? Fail time!
-            if(currentAccountCount >= maxAccountCount) {
-                output.complete(LinkResult.ACCOUNT_CAP_REACHED);
-                return;
+            // if 0 or -1, just skip the check.
+            if(maxAccountCount > 0) {
+                int currentAccountCount = DBLinks.getExistingAccountQuantityFor(discordId).join();
+
+                // Would adding another account exceed the limit? Fail time!
+                if(currentAccountCount >= maxAccountCount) {
+                    output.complete(LinkResult.ACCOUNT_CAP_REACHED);
+                    return;
+                }
             }
 
 

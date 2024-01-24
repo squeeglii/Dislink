@@ -98,10 +98,10 @@ public class ConfigChecks {
         return errorCount == 0;
     }
 
+    // Turns out the plugin handles all of this relatively resiliantly.
+    // Maybe sprinkle in some warnings?
     public static boolean linkingWhitelist() {
-        int errorCount = 0;
-
-        return errorCount == 0;
+        return true;
     }
 
     public static boolean pairingCodes() {
