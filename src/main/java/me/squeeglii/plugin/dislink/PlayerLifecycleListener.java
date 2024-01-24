@@ -53,6 +53,22 @@ public class PlayerLifecycleListener implements Listener {
                     ChatColor.AQUA, ChatColor.UNDERLINE
             );
 
+    public static final String LINK_CODE_GENERATION_DISABLED = (
+            """
+            %s%s%sWho goes there!
+            
+            %sYou do not have an account currently linked & linking new accounts
+            %sis currently disabled.
+            
+            %s%sPlease try again another time.
+            """
+    ).formatted(
+            ChatColor.RED, ChatColor.UNDERLINE, ChatColor.ITALIC,
+            ChatColor.GRAY,
+            ChatColor.GRAY,
+            ChatColor.AQUA, ChatColor.UNDERLINE
+    );
+
     @EventHandler
     public void handleCustomWhitelist(AsyncPlayerPreLoginEvent event) {
         UUID accountId = event.getUniqueId();
@@ -93,6 +109,12 @@ public class PlayerLifecycleListener implements Listener {
             return;
         }
 
+        // New pairings are disabled (broken config probs)
+        if(!Dislink.usingFeature(Feature.PAIR_CODE_GENERATION)) {
+            Dislink.plugin().getLogger().info("%s was rejected entry (New code generation disabled)".formatted(accountId));
+            event.disallow(Result.KICK_OTHER, LINK_CODE_GENERATION_DISABLED);
+            return;
+        }
 
         // Failed to log in (not linked) - create new link.
         Dislink.plugin().getLogger().info("%s is attempting to generate a pairing code...".formatted(accountId));

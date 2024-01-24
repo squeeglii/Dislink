@@ -58,6 +58,8 @@ public final class Dislink extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        enableCount++;
+
         this.threadWatcher = new Run();
         this.verifierPrefixes = new VerifierPrefixes();
         this.linkedAccountCache = new LinkedAccountCache();

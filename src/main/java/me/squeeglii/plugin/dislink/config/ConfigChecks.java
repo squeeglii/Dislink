@@ -29,11 +29,7 @@ public class ConfigChecks {
         if(gameIntegration())
             enabledFeatures.add(Feature.GAME_INTEGRATION);
 
-        // Do not want short-circuiting because every issue should be logged - force the checks to run.
-        boolean isDiscordPassing = discord();
-        boolean isPairingCompletionPassing = pairingCompletion();
-
-        if(isDiscordPassing && isPairingCompletionPassing)
+        if(discord())
             enabledFeatures.add(Feature.DISCORD_BOT);
 
         // Always run the check for error logging.
@@ -92,10 +88,8 @@ public class ConfigChecks {
     }
 
     public static boolean pairingCodes() {
-        return true;
-    }
+        int generationAttempts = Cfg.PAIRING_GENERATION_ATTEMPTS.dislink().orElse(3);
 
-    public static boolean pairingCompletion() {
         return true;
     }
 
