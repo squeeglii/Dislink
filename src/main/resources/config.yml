@@ -19,6 +19,13 @@ database-password:
 # Make your own app here: https://discord.com/developers/applications
 bot-token:
 
+# When linking on the discord side, show a notice with how data will be used & processed.
+# This adds an extra modal but is generally harmless.
+show-gdpr-consent: true
+
+# Appends a short note to the end of the in-game linking menu. Useful for small clarifications.
+discord-link-hint: /link can be used in any channel of that server - It's only visible to you.
+
 # How should the bot behave on each of these servers.
 server-configs:
   id-here:  # This bot can handle different discord servers differently.
@@ -34,7 +41,7 @@ server-configs:
 # Set custom prefixes depending on where people verified from.
 # Remove section if you don't want prefixes.
 short-name-prefixes:
-  gaming: "&#e973eb&lGAM"
+  gaming: "&#e973eb&lG"
   whitelist: "&7*"
   operator: "&4*"
 
@@ -52,11 +59,7 @@ prune-pending-links-on-restart: true
 # Used in link message - helps signpost people to the right place to /link.
 link-location: the Discord server
 
-# When linking on the discord side, show a notice with how data will be used.
-show-gdpr-consent: true
 
-# Appends a short note to the end of the in-game linking menu. Useful for small clarifications.
-discord-link-hint: /link can be used in any channel of that server - It's only visible to you.
 
 
 ### -- Pairing Codes

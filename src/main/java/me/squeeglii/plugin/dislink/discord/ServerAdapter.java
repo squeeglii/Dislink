@@ -130,7 +130,7 @@ public class ServerAdapter extends ListenerAdapter {
         String code = event.getOption("code", "", OptionMapping::getAsString);
         Member member = event.getMember();
         String memberId = event.getUser().getId();
-        boolean showConsentMenu = Cfg.GDPR_CONSENT.dislink().orElse(true);
+        boolean showConsentMenu = Cfg.OBTAIN_GDPR_CONSENT.dislink().orElse(true);
 
         if(!showConsentMenu) {
             this.handleLink(member, code, event.getHook());

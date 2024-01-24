@@ -10,6 +10,7 @@ public enum Feature {
     PAIR_CODE_GENERATION,
     REMOTE_DATABASE, // todo: add support for an SQLite file if a valid remote database cannot be found.
     GAME_INTEGRATION,
+    LINK_WHITELIST,
     CORE
 
 }

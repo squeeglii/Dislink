@@ -26,21 +26,45 @@ public class ConfigChecks {
         if(remoteDatabase())
             enabledFeatures.add(Feature.REMOTE_DATABASE);
 
-        if(inGame())
+        if(gameIntegration())
             enabledFeatures.add(Feature.GAME_INTEGRATION);
 
-        if(discord() && pairingCompletion())
+        // Do not want short-circuiting because every issue should be logged - force the checks to run.
+        boolean isDiscordPassing = discord();
+        boolean isPairingCompletionPassing = pairingCompletion();
+
+        if(isDiscordPassing && isPairingCompletionPassing)
             enabledFeatures.add(Feature.DISCORD_BOT);
 
+        // Always run the check for error logging.
+        boolean isLinkingWhitelist = linkingWhitelist();
+
         // todo: add an offline database or check for other ways the plugin can run.
-        if(enabledFeatures.contains(Feature.REMOTE_DATABASE))
+        if(enabledFeatures.contains(Feature.REMOTE_DATABASE)) {
+
+            if(isLinkingWhitelist)
+                enabledFeatures.add(Feature.LINK_WHITELIST);
+
             enabledFeatures.add(Feature.CORE);
+        }
 
         return Collections.unmodifiableSet(enabledFeatures);
     }
 
 
     public static boolean remoteDatabase() {
+        String addr = Cfg.DB_ADDRESS.dislink().orElse("");
+        String schema = Cfg.DB_SCHEMA.dislink().orElse("");
+        String username = Cfg.DB_USERNAME.dislink().orElse("");
+        String password = Cfg.DB_PASSWORD.dislink().orElse("");
+
+        if(addr.isBlank()) return errorBlankString(Cfg.DB_ADDRESS);
+        if(schema.isBlank()) return errorBlankString(Cfg.DB_SCHEMA);
+        if(username.isBlank()) return errorBlankString(Cfg.DB_USERNAME);
+        if(password.isBlank()) return errorBlankString(Cfg.DB_PASSWORD);
+
+        //todo: pattern matching?
+
         return true;
     }
 
@@ -48,14 +72,22 @@ public class ConfigChecks {
         String token = Cfg.DISCORD_TOKEN.dislink().orElse("");
 
         if(token.isBlank()) {
-            warn(Cfg.DISCORD_TOKEN, "It must not be blank! See https://discordpy.readthedocs.io/en/stable/discord.html");
+            error(Cfg.DISCORD_TOKEN, "It must not be blank! See https://discordpy.readthedocs.io/en/stable/discord.html");
             return false;
         }
+
+        //TODO: Check the subsections. If one is invalid, invalidate them all.
 
         return true;
     }
 
-    public static boolean inGame() {
+    public static boolean gameIntegration() {
+        //TODO check prefixes.
+        return true;
+    }
+
+    public static boolean linkingWhitelist() {
+
         return true;
     }
 
@@ -67,9 +99,14 @@ public class ConfigChecks {
         return true;
     }
 
-    private static void error(Key<?> key, String message) {
+    private static boolean error(Key<?> key, String message) {
         String formatted = "Config issue at '%s' -- %s - aborting".formatted(key.name(), message);
         Dislink.plugin().getLogger().severe(formatted);
+        return false;
+    }
+
+    private static boolean errorBlankString(Key<?> key) {
+        return error(key, "It must not be blank!");
     }
 
     private static void warn(Key<?> key, String message) {

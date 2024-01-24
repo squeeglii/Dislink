@@ -1,5 +1,6 @@
 package me.squeeglii.plugin.dislink;
 
+import me.squeeglii.plugin.dislink.config.Feature;
 import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
@@ -36,6 +37,21 @@ public class PlayerLifecycleListener implements Listener {
             ChatColor.YELLOW
     );
 
+    public static final String LINK_WHITELISTING_DISABLED = (
+           """
+           %s%s%sUnable to authorise you!
+           
+           %sAccount linking is currently disabled, so the server is unable to check
+           %sif you are authorised to join or not.
+           
+           %s%sWhitelisted users are still permitted to join.
+           """
+            ).formatted(
+                    ChatColor.RED, ChatColor.UNDERLINE, ChatColor.ITALIC,
+                    ChatColor.GRAY,
+                    ChatColor.GRAY,
+                    ChatColor.AQUA, ChatColor.UNDERLINE
+            );
 
     @EventHandler
     public void handleCustomWhitelist(AsyncPlayerPreLoginEvent event) {
@@ -48,6 +64,12 @@ public class PlayerLifecycleListener implements Listener {
             Dislink.plugin().getLogger().info("%s bypassed link check (Whitelisted)".formatted(accountId));
             LinkedAccount guestAcc = new LinkedAccount(null, accountId, "whitelist", true);
             Dislink.plugin().getLinkedAccountCache().offerAccount(guestAcc);
+            return;
+        }
+
+        if(!Dislink.usingFeature(Feature.LINK_WHITELIST)) {
+            Dislink.plugin().getLogger().info("%s was rejected entry (Link whitelist disabled)".formatted(accountId));
+            event.disallow(Result.KICK_OTHER, LINK_WHITELISTING_DISABLED);
             return;
         }
 
@@ -70,7 +92,6 @@ public class PlayerLifecycleListener implements Listener {
             Dislink.plugin().getLinkedAccountCache().offerAccount(existingLink);
             return;
         }
-
 
 
         // Failed to log in (not linked) - create new link.

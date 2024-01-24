@@ -54,7 +54,7 @@ public class DiscordManager {
     }
 
     private HashMap<Long, ServerAdapter> parseAdaptersFromConfig() {
-        Optional<ConfigurationSection> optSection = Cfg.SERVER_CONFIGS.dislink();
+        Optional<ConfigurationSection> optSection = Cfg.DISCORD_SERVER_CONFIGS.dislink();
 
         if(optSection.isEmpty()) {
             Dislink.plugin().getLogger().warning("No server configurations found! The bot is basically a dud.");
