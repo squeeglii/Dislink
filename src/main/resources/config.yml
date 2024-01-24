@@ -23,9 +23,6 @@ bot-token:
 # This adds an extra modal but is generally harmless.
 show-gdpr-consent: true
 
-# Appends a short note to the end of the in-game linking menu. Useful for small clarifications.
-discord-link-hint: /link can be used in any channel of that server - It's only visible to you.
-
 # How should the bot behave on each of these servers.
 server-configs:
   id-here:  # This bot can handle different discord servers differently.
@@ -59,7 +56,9 @@ prune-pending-links-on-restart: true
 # Used in link message - helps signpost people to the right place to /link.
 link-location: the Discord server
 
-
+# Appends a short note to the end of the in-game linking menu. Useful for small clarifications such as how to link
+# on discord.
+link-hint: /link can be used in any channel of that server - It's only visible to you.
 
 
 ### -- Pairing Codes

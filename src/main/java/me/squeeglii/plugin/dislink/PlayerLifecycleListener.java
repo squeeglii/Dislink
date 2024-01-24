@@ -172,7 +172,7 @@ public class PlayerLifecycleListener implements Listener {
                 ? "%s%s%s%s%s".formatted(ChatColor.AQUA, ChatColor.UNDERLINE, optServer.get(), ChatColor.RESET, ChatColor.DARK_AQUA)
                 : "the discord server";
 
-        Optional<String> optDiscordHint = Cfg.DISCORD_COMMAND_HINT.dislink();
+        Optional<String> optDiscordHint = Cfg.LINK_COMPLETION_COMMAND_HINT.dislink();
         String discordHint = optDiscordHint.isPresent()
                 ? "%s%s%s%s".formatted(ChatColor.RESET, ChatColor.GRAY, ChatColor.ITALIC, optDiscordHint.get())
                 : "";

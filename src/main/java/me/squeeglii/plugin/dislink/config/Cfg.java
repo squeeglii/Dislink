@@ -15,7 +15,6 @@ public class Cfg {
     public static final StringGetter DISCORD_TOKEN = new StringGetter("bot-token");
     public static final SectionGetter DISCORD_SERVER_CONFIGS = new SectionGetter("server-configs");
     public static final BoolGetter OBTAIN_GDPR_CONSENT = new BoolGetter("show-gdpr-consent"); // Move this out of discord if other integrations are added.
-    public static final StringGetter DISCORD_COMMAND_HINT = new StringGetter("discord-link-hint");
 
     //// Sub-section of SERVER_CONFIGS
     public static final StringGetter DISCORD_SHORT_NAME = new StringGetter("short-name");
@@ -25,10 +24,12 @@ public class Cfg {
     // In-Game Config
     public static final SectionGetter VERIFIER_SHORT_NAME_PREFIXES = new SectionGetter("short-name-prefixes");
 
-    // General Pairing
+    // General Pairing - Affects in-game behaviour before player has logged in (the link screen + whitelist)
     public static final IntGetter MAX_ACCOUNT_LIMIT = new IntGetter("paired-account-limit");
     public static final BoolGetter PRUNE_PENDING_LINKS_ON_START = new BoolGetter("prune-pending-links-on-restart");
     public static final StringGetter LINK_LOCATION = new StringGetter("link-location"); // used in kick message to hint where to complete the link.
+    public static final StringGetter LINK_COMPLETION_COMMAND_HINT = new StringGetter("link-hint");
+
 
     // Pairing Code Generation
     public static final IntGetter PAIRING_BLOCKS = new IntGetter("pairing-code-blocks");
