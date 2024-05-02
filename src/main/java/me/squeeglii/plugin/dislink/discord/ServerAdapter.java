@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 public class ServerAdapter extends ListenerAdapter {
 
@@ -59,9 +60,11 @@ public class ServerAdapter extends ListenerAdapter {
         if(this.shouldIgnore(event.getGuild()))
             return;
 
+
         switch (event.getName()) {
             case "link" -> this.handleLinkCommand(event);
             case "unlinkall" -> this.handleUnlinkAllCommand(event);
+            default -> this.handleUnknownCommand(event);
         }
 
     }
@@ -102,6 +105,8 @@ public class ServerAdapter extends ListenerAdapter {
                 DBLinks.deleteAllLinksFor(userId).whenComplete((ret, err) -> {
 
                     if(err != null) {
+                        Dislink.plugin().getLogger().log(Level.WARNING, "Error G002 for Discord User <@%s>".formatted(userId), err);
+
                         event.getHook().editOriginal(MessageEditData.fromEmbeds(
                                 this.generateGenericErrorEmbed("G002")
                         )).queue();
@@ -168,7 +173,9 @@ public class ServerAdapter extends ListenerAdapter {
         DBLinks.deleteAllLinksFor(event.getUser().getId()).whenComplete((ret, err) -> {
 
             if(err != null) {
-                err.printStackTrace();
+                String userId = event.getUser().getId();
+                Dislink.plugin().getLogger().log(Level.WARNING, "Error U001 for Discord User <@%s>".formatted(userId), err);
+
                 event.getHook().editOriginal(MessageEditData.fromEmbeds(
                         this.generateGenericErrorEmbed("U001"))
                 ).queue();
@@ -184,6 +191,14 @@ public class ServerAdapter extends ListenerAdapter {
                             .build()
             )).queue();
         });
+    }
+
+    public void handleUnknownCommand(SlashCommandInteractionEvent event) {
+        event.getHook().setEphemeral(true);
+        event.replyEmbeds(this.generateGenericErrorEmbed("404")).queue();
+
+        String userId = event.getId();
+        Dislink.plugin().getLogger().log(Level.WARNING, "Error 404 for Discord User <@%s> -- missing command".formatted(userId));
     }
 
 
@@ -293,4 +308,9 @@ public class ServerAdapter extends ListenerAdapter {
         return guild.getIdLong() != this.guildId;
     }
 
+
+    @Override
+    public String toString() {
+        return "{ Server Id: %s, Member Role Id: %s, Short Name: %s}".formatted(this.guildId, this.memberRoleId, this.shortName);
+    }
 }
