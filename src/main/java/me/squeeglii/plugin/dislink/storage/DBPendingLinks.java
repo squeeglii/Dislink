@@ -275,7 +275,7 @@ public class DBPendingLinks {
 
     private static Optional<String> attemptAndCheckCodeGeneration(ConnectionWrapper conn, List<PreparedStatement> statementPool) throws SQLException {
 
-        if(Dislink.usingFeature(Feature.PAIR_CODE_GENERATION)) {
+        if(!Dislink.usingFeature(Feature.PAIR_CODE_GENERATION)) {
 
             if(Dislink.getEnableCount() == lastLoadWarned)
                 return Optional.empty();
