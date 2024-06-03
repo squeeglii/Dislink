@@ -1,5 +1,6 @@
 package me.squeeglii.plugin.dislink.storage.helper;
 
+import me.squeeglii.plugin.dislink.Dislink;
 import me.squeeglii.plugin.dislink.config.Cfg;
 
 import java.sql.SQLException;
@@ -35,6 +36,8 @@ public class DatabaseHelper {
      * Gets a table name with the plugin prefix.
      */
     public static String getFullTableName(String shortName) {
-        return Cfg.DB_PREFIX.dislink().orElse("") + shortName;
+        String str = shortName; //Cfg.DB_PREFIX.dislink().orElse("") + shortName;
+        Dislink.plugin().getLogger().info(str);
+        return str;
     }
 }
