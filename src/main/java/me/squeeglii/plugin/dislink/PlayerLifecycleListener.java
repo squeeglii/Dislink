@@ -4,8 +4,10 @@ import me.squeeglii.plugin.dislink.config.Feature;
 import me.squeeglii.plugin.dislink.exception.ExhaustedOptionsException;
 import me.squeeglii.plugin.dislink.storage.DBLinks;
 import me.squeeglii.plugin.dislink.storage.DBPendingLinks;
+import me.squeeglii.plugin.dislink.storage.LinkResult;
 import me.squeeglii.plugin.dislink.storage.LinkedAccount;
 import me.squeeglii.plugin.dislink.config.Cfg;
+import me.squeeglii.plugin.dislink.util.Run;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -31,6 +33,16 @@ public class PlayerLifecycleListener implements Listener {
             "%s%s%sWoah there!\n" +
             "%sA lot of people have joined recently! Please\n" +
             "%scome back in a bit when the queue has caught up."
+    ).formatted(
+            ChatColor.GOLD, ChatColor.UNDERLINE, ChatColor.ITALIC,
+            ChatColor.YELLOW,
+            ChatColor.YELLOW
+    );
+
+    public static final String LINKING_TEMPORARILY_DISABLED = (
+            "%s%s%sWoah there!\n" +
+            "%sNew players are not allowed to join the server for\n" +
+            "%sthe time being. Please try again later."
     ).formatted(
             ChatColor.GOLD, ChatColor.UNDERLINE, ChatColor.ITALIC,
             ChatColor.YELLOW,
@@ -120,13 +132,20 @@ public class PlayerLifecycleListener implements Listener {
         Dislink.plugin().getLogger().info("%s is attempting to generate a pairing code...".formatted(accountId));
         String pairCode;
 
+        if(!Cfg.ALLOW_NEW_LINKS.dislink().orElse(true)) {
+            event.disallow(Result.KICK_OTHER, LINKING_TEMPORARILY_DISABLED);
+            return;
+        }
+
         try {
             pairCode = DBPendingLinks.startLinkingFor(accountId).get();
 
         } catch (CompletionException err) {
-            Dislink.plugin()
-                    .getLogger()
-                    .throwing("PlayerLifecycleListener", "handleCustomWhitelist", err.getCause());
+            Run.sync(() ->
+                Dislink.plugin()
+                        .getLogger()
+                        .severe(err.getMessage())
+            );
 
             String kickReason = err.getCause() instanceof ExhaustedOptionsException
                     ? TOO_MANY_CODES
@@ -135,9 +154,11 @@ public class PlayerLifecycleListener implements Listener {
             return;
 
         } catch (Exception err) {
-            Dislink.plugin()
-                   .getLogger()
-                   .throwing("PlayerLifecycleListener", "handleCustomWhitelist", err);
+            Run.sync(() ->
+                    Dislink.plugin()
+                            .getLogger()
+                            .severe(err.getMessage())
+            );
             event.disallow(Result.KICK_OTHER, FAILED_CODE_GENERATION_OTHER);
             return;
         }

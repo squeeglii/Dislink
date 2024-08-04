@@ -266,6 +266,12 @@ public class ServerAdapter extends ListenerAdapter {
                         .setFooter("/link")
                         .setColor(new Color(200, 200, 10))
                         .build();
+                case TEMPORARILY_DISABLED ->  new EmbedBuilder()
+                        .setTitle("Linking is temporarily blocked.")
+                        .setDescription("The server is currently set to disallow any new account links.")
+                        .setFooter("/link")
+                        .setColor(new Color(200, 200, 10))
+                        .build();
                 case SUCCESS -> new EmbedBuilder()
                         .setTitle("Welcome!")
                         .setDescription("You've successfully linked your account! Re-join the Minecraft server and you should be able to play!")

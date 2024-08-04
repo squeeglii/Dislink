@@ -36,8 +36,8 @@ public class DatabaseHelper {
      * Gets a table name with the plugin prefix.
      */
     public static String getFullTableName(String shortName) {
-        String str = shortName; //Cfg.DB_PREFIX.dislink().orElse("") + shortName;
-        Dislink.plugin().getLogger().info(str);
+        String str = Cfg.DB_PREFIX.dislink().orElse("") + shortName;
+        Dislink.plugin().getLogger().info("Full DB Name: %s".formatted(str));
         return str;
     }
 }

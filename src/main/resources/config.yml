@@ -1,4 +1,8 @@
 
+# Killswitch - did something go very wrong? Or do you just want to pause new links?
+allow-new-linking: true
+
+
 ### -- Database Configuration
 ### A must-fill-in ! - What are the details for the database.
 

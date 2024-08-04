@@ -56,7 +56,7 @@ public class DBPendingLinks {
             PreparedStatement statement = null;
 
             try {
-                String tableName = DBLinks.getEstablishedLinksTable();
+                String tableName = DBPendingLinks.getPendingLinkTable();
                 connection = Dislink.plugin().getDbConnection();
                 statement = connection.prepareStatement(SQL_CREATE_TABLE.formatted(tableName));
 
@@ -153,6 +153,11 @@ public class DBPendingLinks {
      */
     public static CompletableFuture<LinkResult> tryCompleteLink(String discordId, String pairCode, String verifier) {
         CompletableFuture<LinkResult> output = new CompletableFuture<>();
+
+        if(!Cfg.ALLOW_NEW_LINKS.dislink().orElse(true)) {
+            output.complete(LinkResult.TEMPORARILY_DISABLED);
+            return output;
+        }
 
         if(Check.isPairCodeUnsafe(pairCode)) {
             output.complete(LinkResult.INVALID_CODE);

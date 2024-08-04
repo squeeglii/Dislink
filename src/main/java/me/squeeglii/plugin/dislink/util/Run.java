@@ -29,4 +29,8 @@ public class Run {
         Dislink.plugin().getThreadWatcher().runAsync(runnable);
     }
 
+    public static void sync(Runnable runnable) {
+        Dislink.plugin().getServer().getScheduler().runTask(Dislink.plugin(), runnable);
+    }
+
 }

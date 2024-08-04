@@ -4,6 +4,9 @@ import me.squeeglii.plugin.dislink.data.*;
 
 public class Cfg {
 
+    // General Controls
+    public static final BoolGetter ALLOW_NEW_LINKS = new BoolGetter("allow-new-linking");
+
     // Database Details
     public static final StringGetter DB_PREFIX = new StringGetter("database-prefix");
     public static final StringGetter DB_ADDRESS = new StringGetter("database-address");
